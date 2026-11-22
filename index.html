@@ -131,7 +131,7 @@
         }
 
         .header-inner {
-            max-width: 1220px;
+            max-width: 1260px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -150,9 +150,7 @@
             flex-wrap: wrap;
         }
 
-        .header-actions .lang-bar {
-            margin-bottom: 0;
-        }
+        .header-actions .lang-bar { margin-bottom: 0; }
 
         .badge-admin {
             background: rgba(200, 138, 30, 0.2);
@@ -183,7 +181,7 @@
         }
 
         .container {
-            max-width: 1220px;
+            max-width: 1260px;
             margin: 22px auto;
             padding: 0 16px 48px;
         }
@@ -275,6 +273,7 @@
         .btn-teal { background: var(--teal); color: #fff; }
         .btn-green { background: #15803d; color: #fff; width: auto; padding: 6px 10px; font-size: 12px; }
         .btn-sms { background: #0284c7; color: #fff; width: auto; padding: 6px 10px; font-size: 12px; }
+        .btn-reject { background: #dc2626; color: #fff; width: auto; padding: 6px 10px; font-size: 12px; }
 
         .quick-bar {
             display: flex;
@@ -378,6 +377,7 @@
         .p-ok { background: var(--ok-bg); color: var(--ok-text); }
         .p-warn { background: var(--warn-bg); color: var(--warn-text); }
         .p-bad { background: var(--bad-bg); color: var(--bad-text); }
+        .p-info { background: var(--info-bg); color: var(--info-text); }
 
         .sms-feed {
             max-height: 210px;
@@ -397,6 +397,14 @@
         }
 
         .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .chain-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -471,8 +479,8 @@
                 <div class="stat-val" id="statUnpaidTax" style="color:#b91c1c;">0</div>
             </div>
             <div class="stat-box">
-                <div class="stat-label" id="t_statComplaints">Iyyannoo / Komii</div>
-                <div class="stat-val" id="statComplaints" style="color:#b45309;">0</div>
+                <div class="stat-label" id="t_statPendingApprovals">Eeyyama Eeggataa</div>
+                <div class="stat-val" id="statPendingApprovals" style="color:#b45309;">0</div>
             </div>
         </div>
 
@@ -502,9 +510,9 @@
             </div>
 
             <div class="card">
-                <h2 id="t_transferTitle">🔄 Eeyyama Bulchiinsaatiin Gurgurtaa / Jijjiirraa Maqaa</h2>
+                <h2 id="t_transferTitle">🔄 Dabarsa Maqaa (Sadarkaa Hoggantootaan Mirkanaa'u)</h2>
                 <p id="t_transferDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Yeroo lafti gurguramu ykn maqaan jijjiiramu, eeyyama bulchiinsaatiin mirkaneessee maqaa haaraa galmeessa.
+                    Dabarsa maqaa yeroo dhiyeessitu, jalqaba <strong>Ogeessa</strong> → <strong>Abbaa Adeemsaa</strong> → <strong>Hogganaa Olaanaa / Kaantiibaa</strong> sadarkaa sadarkaan mirkaneessu.
                 </p>
 
                 <form id="transferForm">
@@ -524,14 +532,37 @@
                     </div>
 
                     <div class="form-group">
-                        <label id="t_trRefLabel">Lakk. Eeyyama Bulchiinsa Magaalaa:</label>
+                        <label id="t_trRefLabel">Lakk. Galmee / Eeyyama Bulchiinsa Magaalaa:</label>
                         <input type="text" id="approvalRef" placeholder="Fkn: BHM-EYY-2026-012" required>
                     </div>
 
-                    <button type="submit" class="btn-teal" id="t_trBtn">✍️ Eeyyama Bulchiinsaan Maqaa Jijjiiri</button>
+                    <button type="submit" class="btn-teal" id="t_trBtn">📤 Gara Mirkaneessa Hoggantootaatti Ergi</button>
                 </form>
 
                 <div id="transferBox" class="status-box"></div>
+            </div>
+        </div>
+
+        <!-- GABATEE MIRKANEESSA SADARKAA HOGGANTOOTAA -->
+        <div class="card" style="margin-bottom:20px;">
+            <h2 id="t_approvalChainTitle">🛡️ Eeyyama Hoggantoota Sadarkaa Sadarkaan (Ogeessa → Abbaa Adeemsaa → Hogganaa Olaanaa / Kaantiibaa)</h2>
+            <p id="t_approvalChainDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
+                Dabarsi maqaa kan mirkanaa'u yeroo hoggantoonni sadarkaa sadarkaan itti dhiyeessanii mirkaneessan qofa dha.
+            </p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th id="t_thReqId">Lakk.</th>
+                            <th id="t_thReqParcel">Paarsilii &amp; Ganda</th>
+                            <th id="t_thReqChange">Jijjiirraa Maqaa</th>
+                            <th id="t_thReqChain">Sadarkaa Mirkaneessaa</th>
+                            <th id="t_thReqStatus">Haala</th>
+                            <th id="t_thReqAct">Mirkaneessa Hoggantootaa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvalQueueBody"></tbody>
+                </table>
             </div>
         </div>
 
@@ -664,7 +695,7 @@
             <div class="card">
                 <h2 id="t_smsTitle">📱 Ergaa Gabaabaa Bilbila Abbaa Lafaa Irratti Ergame (SMS Log)</h2>
                 <p id="t_smsDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Ergaan yeroo galmee lafaa, dabarsa maqaa, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.
+                    Ergaan yeroo galmee lafaa, dabarsa maqaa mirkanaa'e, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.
                 </p>
                 <div id="smsFeed" class="sms-feed"></div>
             </div>
@@ -729,18 +760,38 @@
             statParcels: "Paarsilii Galmaa'e",
             statPaid: "Gibira Kaffalame",
             statUnpaid: "Gibira Hin Kaffalamne",
-            statComplaints: "Iyyannoo / Komii",
+            statPendingApprovals: "Eeyyama Eeggataa",
             lookupTitle: "👤 Keessummeessa Maamila: Ragaa Abbaa Lafaa & Gibira Ilaaluu",
             lookupDesc: "Maqaa abbaa lafaa ykn lakkoofsa galmee lafaa (Parcel ID) gandoota Bulee Horaa keessaa sakatta'uun bal'ina, Master Plan, fi gibira ilaali.",
             lookupLabel: "Maqaa Abbaa Lafaa ykn Lakkoofsa Galmee Lafaa (Parcel ID):",
             lookupBtn: "🔍 Ragaa Maamila & Gibira Sakatta'i",
-            transferTitle: "🔄 Eeyyama Bulchiinsaatiin Gurgurtaa / Jijjiirraa Maqaa",
-            transferDesc: "Yeroo lafti gurguramu ykn maqaan jijjiiramu, eeyyama bulchiinsaatiin mirkaneessee maqaa haaraa galmeessa.",
+            transferTitle: "🔄 Dabarsa Maqaa (Sadarkaa Hoggantootaan Mirkanaa'u)",
+            transferDesc: "Dabarsi maqaa dura Ogeessa → Abbaa Adeemsaa → Hogganaa Olaanaa / Kaantiibaa sadarkaa sadarkaan mirkanaa'a.",
             trParcelLabel: "Paarsilii ID Gurguramu / Maqaan Jijjiiramu:",
             trOwnerLabel: "Maqaa Abbaa Lafaa Haaraa:",
             trPhoneLabel: "Bilbila Abbaa Lafaa Haaraa (SMS / Alert):",
-            trRefLabel: "Lakk. Eeyyama Bulchiinsa Magaalaa:",
-            trBtn: "✍️ Eeyyama Bulchiinsaan Maqaa Jijjiiri",
+            trRefLabel: "Lakk. Galmee / Eeyyama Bulchiinsa Magaalaa:",
+            trBtn: "📤 Gara Mirkaneessa Hoggantootaatti Ergi",
+            approvalChainTitle: "🛡️ Eeyyama Hoggantoota Sadarkaa Sadarkaan (Ogeessa → Abbaa Adeemsaa → Hogganaa Olaanaa / Kaantiibaa)",
+            approvalChainDesc: "Sadarkaa tokkoon tokkoon mirkaneessaa yoo eeyyaman qofa dabarsi maqaa ni raawwatama.",
+            thReqId: "Lakk.",
+            thReqParcel: "Paarsilii & Ganda",
+            thReqChange: "Jijjiirraa Maqaa",
+            thReqChain: "Sadarkaa Mirkaneessaa",
+            thReqStatus: "Haala",
+            thReqAct: "Mirkaneessa Hoggantootaa",
+            stepOfficer: "1. Ogeessa",
+            stepProcess: "2. Abbaa Adeemsaa",
+            stepMayor: "3. Hogganaa Olaanaa / Kaantiibaa",
+            approveOfficerBtn: "✅ Ogeessa Mirkaneessi",
+            approveProcessBtn: "✅ Abbaa Adeemsaa Mirkaneessi",
+            approveMayorBtn: "🏛️ Hogganaa Olaanaa / Kaantiibaa Mirkaneessi",
+            rejectBtn: "❌ Didi",
+            statusPendingOfficer: "Ogeessa Eeggata",
+            statusPendingProcess: "Abbaa Adeemsaa Eeggata",
+            statusPendingMayor: "Hogganaa Olaanaa / Kaantiibaa Eeggata",
+            statusApproved: "Mirkanaa'eera (Jijjiirame)",
+            statusRejected: "Didameera",
             regTitle: "📝 Galmee Lafa Haaraa & Ergii Bilbila Abbaa Lafaa",
             regDesc: "Gandoota Bulee Horaa keessatti lafa yeroo galmeessan, bal'ina, ganda, abbaa lafaa, fi gibira wajjin bilbila irratti ergaan ni ergama.",
             regParcelLabel: "Lakkoofsa Paarsilii (Parcel ID):",
@@ -764,7 +815,7 @@
             legBad: "Soba",
             legMp: "Master Plan",
             smsTitle: "📱 Ergaa Gabaabaa Bilbila Abbaa Lafaa Irratti Ergame (SMS Log)",
-            smsDesc: "Ergaan yeroo galmee lafaa, dabarsa maqaa, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.",
+            smsDesc: "Ergaan yeroo galmee lafaa, dabarsa maqaa mirkanaa'e, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.",
             regTableTitle: "💰 Galmee Lafaa & Gibira Mootummaa",
             thParcel: "Paarsilii & Ganda",
             thOwner: "Abbaa Lafaa",
@@ -804,17 +855,38 @@
             statPaid: "ግብር የተከፈለባቸው",
             statUnpaid: "ግብር ያልተከፈለባቸው",
             statComplaints: "ቅሬታ / አቤቱታ",
+            statPendingApprovals: "ፈቃድ የሚጠብቁ",
             lookupTitle: "👤 የደንበኛ መስተንግዶ፡ የባለይዞታ መረጃ እና ግብር ማጣራት",
             lookupDesc: "በቡሌ ሆራ ከተማ ቀበሌዎች ያሉ ይዞታዎችን በፓርሴል ቁጥር ወይም በስም በመፈለግ ስፋት፣ ማስተር ፕላን እና የግብር ሁኔታ ያረጋግጡ።",
             lookupLabel: "የባለይዞታ ስም ወይም የፓርሴል መለያ (Parcel ID):",
             lookupBtn: "🔍 የደንበኛ እና የግብር መረጃ ፈልግ",
-            transferTitle: "🔄 በአስተዳደር ፈቃድ የይዞታ ሽያጭ / የስም ዝውውር",
-            transferDesc: "መሬት ሲተላለፍ ወይም ሲሸጥ የአስተዳደሩን ፈቃድ ቁጥር በማስገባት ወደ አዲስ ባለይዞታ ያዛውሩ።",
+            transferTitle: "🔄 የስም ዝውውር (በደረጃ በደረጃ የአመራር ማረጋገጫ)",
+            transferDesc: "የስም ዝውውር ሲቀርብ በባለሙያ → በሂደት መሪ → በከፍተኛ አመራር / ከንቲባ ደረጃ በደረጃ ይጸድቃል።",
             trParcelLabel: "የሚተላለፍ የፓርሴል መለያ (Parcel ID):",
             trOwnerLabel: "የአዲሱ ባለይዞታ ሙሉ ስም:",
             trPhoneLabel: "የአዲሱ ባለይዞታ ስልክ (SMS / Alert):",
-            trRefLabel: "የከተማ አስተዳደር ፈቃድ ቁጥር:",
-            trBtn: "✍️ በአስተዳደር ፈቃድ ስም ያዛውሩ",
+            trRefLabel: "የከተማ አስተዳደር ፈቃድ / ማጣቀሻ ቁጥር:",
+            trBtn: "📤 ወደ አመራር ማጽደቂያ ላክ",
+            approvalChainTitle: "🛡️ የአመራሮች እርከን ማጽደቂያ (ባለሙያ → የሂደት መሪ → ከፍተኛ አመራር / ከንቲባ)",
+            approvalChainDesc: "እያንዳንዱ እርከን ሲያጸድቅ ብቻ የስም ዝውውር ይፈጸማል።",
+            thReqId: "ቁጥር",
+            thReqParcel: "ፓርሴል እና ቀበሌ",
+            thReqChange: "የስም ለውጥ",
+            thReqChain: "የማጽደቂያ ደረጃዎች",
+            thReqStatus: "ሁኔታ",
+            thReqAct: "የአመራር እርምጃ",
+            stepOfficer: "1. ባለሙያ",
+            stepProcess: "2. የሂደት መሪ",
+            stepMayor: "3. ከፍተኛ አመራር / ከንቲባ",
+            approveOfficerBtn: "✅ ባለሙያ አጽድቅ",
+            approveProcessBtn: "✅ የሂደት መሪ አጽድቅ",
+            approveMayorBtn: "🏛️ ከፍተኛ አመራር / ከንቲባ አጽድቅ",
+            rejectBtn: "❌ ውድቅ አድርግ",
+            statusPendingOfficer: "ባለሙያ ይጠብቃል",
+            statusPendingProcess: "የሂደት መሪ ይጠብቃል",
+            statusPendingMayor: "ከፍተኛ አመራር / ከንቲባ ይጠብቃል",
+            statusApproved: "ጸድቋል (ተዛውሯል)",
+            statusRejected: "ውድቅ ተደርጓል",
             regTitle: "📝 አዲስ ይዞታ መመዝገብ እና የSMS መልዕክት መላክ",
             regDesc: "በቡሌ ሆራ ቀበሌዎች አዲስ ይዞታ ሲመዘገብ ስፋት፣ ቀበሌ፣ ባለይዞታ እና የግብር ሁኔታ በስልክ መልዕክት ይላካል።",
             regParcelLabel: "የፓርሴል መለያ (Parcel ID):",
@@ -838,7 +910,7 @@
             legBad: "የተጭበረበረ",
             legMp: "ማስተር ፕላን",
             smsTitle: "📱 ለባለይዞታው የተላኩ የአጭር መልዕክት (SMS) ታሪክ",
-            smsDesc: "በምዝገባ፣ በስም ዝውውር እና በግብር ማስታወሻ ወቅት የተላኩ መልዕክቶች እዚህ ይታያሉ።",
+            smsDesc: "በምዝገባ፣ በጸደቀ የስም ዝውውር እና በግብር ማስታወሻ ወቅት የተላኩ መልዕክቶች እዚህ ይታያሉ።",
             regTableTitle: "💰 የይዞታ መዝገብ እና የመንግስት ግብር",
             thParcel: "ፓርሴል እና ቀበሌ",
             thOwner: "ባለይዞታ",
@@ -877,18 +949,38 @@
             statParcels: "Registered Parcels",
             statPaid: "Tax Paid",
             statUnpaid: "Tax Unpaid",
-            statComplaints: "Complaints",
+            statPendingApprovals: "Pending Approvals",
             lookupTitle: "👤 Client Lookup: Owner Record & Tax Verification",
             lookupDesc: "Search parcels across Bule Hora kebeles by Parcel ID or owner name to verify area, Master Plan zoning, and tax status.",
             lookupLabel: "Owner Name or Parcel ID:",
             lookupBtn: "🔍 Search Client & Tax Status",
-            transferTitle: "🔄 Administrative Land Sale / Ownership Transfer",
-            transferDesc: "Transfer parcel ownership with municipal approval reference and trigger a confirmation alert.",
+            transferTitle: "🔄 Ownership Transfer (Multi-Level Leadership Approval)",
+            transferDesc: "Transfers progress sequentially through Officer → Process Owner → Senior Leadership / Mayor.",
             trParcelLabel: "Parcel ID to Transfer:",
             trOwnerLabel: "New Owner Full Name:",
             trPhoneLabel: "New Owner Phone (SMS / Alert):",
-            trRefLabel: "Municipal Approval Reference:",
-            trBtn: "✍️ Transfer Ownership",
+            trRefLabel: "Municipal Approval / Reference No.:",
+            trBtn: "📤 Submit for Leadership Approval",
+            approvalChainTitle: "🛡️ Tiered Leadership Approval Chain (Officer → Process Owner → Senior Leader / Mayor)",
+            approvalChainDesc: "Ownership updates only after each leadership tier approves in sequence.",
+            thReqId: "ID",
+            thReqParcel: "Parcel & Kebele",
+            thReqChange: "Ownership Change",
+            thReqChain: "Approval Stages",
+            thReqStatus: "Status",
+            thReqAct: "Leadership Action",
+            stepOfficer: "1. Officer",
+            stepProcess: "2. Process Owner",
+            stepMayor: "3. Senior Leader / Mayor",
+            approveOfficerBtn: "✅ Approve (Officer)",
+            approveProcessBtn: "✅ Approve (Process Owner)",
+            approveMayorBtn: "🏛️ Approve (Mayor / Director)",
+            rejectBtn: "❌ Reject",
+            statusPendingOfficer: "Awaiting Officer",
+            statusPendingProcess: "Awaiting Process Owner",
+            statusPendingMayor: "Awaiting Senior Leader / Mayor",
+            statusApproved: "Approved & Transferred",
+            statusRejected: "Rejected",
             regTitle: "📝 New Land Registration & Owner Alert",
             regDesc: "Register a new parcel in Bule Hora with area, kebele, owner, and tax status and log an SMS notification.",
             regParcelLabel: "Parcel ID:",
@@ -912,7 +1004,7 @@
             legBad: "Fake / Missing",
             legMp: "Master Plan",
             smsTitle: "📱 Owner Phone Notifications (SMS Log)",
-            smsDesc: "Notifications sent during registration, transfers, and tax reminders appear here.",
+            smsDesc: "Notifications sent during registration, approved transfers, and tax reminders appear here.",
             regTableTitle: "💰 Land Registry & Municipal Tax",
             thParcel: "Parcel & Kebele",
             thOwner: "Owner",
@@ -952,10 +1044,27 @@
         { id: "IYY-101", name: "Lule Tafara", parcelInfo: "BH-AB-102 (Ardaa Biyyaa)", type: "Land Tax Inquiry", desc: "Kaffaltii gibira bara kanaa irratti ibsa barbaada.", state: "Open" }
     ];
 
+    const DEFAULT_TRANSFERS = [
+        {
+            reqId: "TR-201",
+            parcelId: "BH-EF-101",
+            ganda: "Ejersa Foora",
+            oldOwner: "Abiti Mama Shibiru",
+            newOwner: "Nafiyad Shifera Hembe",
+            newPhone: "0911223344",
+            ref: "BHM-EYY-2026-011",
+            officerApproved: true,
+            processApproved: false,
+            mayorApproved: false,
+            rejected: false
+        }
+    ];
+
     let currentLang = localStorage.getItem("bh_lang") || "om";
-    let parcels = JSON.parse(localStorage.getItem("bh_lang_parcels")) || JSON.parse(JSON.stringify(DEFAULT_PARCELS));
-    let complaints = JSON.parse(localStorage.getItem("bh_lang_complaints")) || JSON.parse(JSON.stringify(DEFAULT_COMPLAINTS));
-    let smsLogs = JSON.parse(localStorage.getItem("bh_lang_smsLogs")) || [];
+    let parcels = JSON.parse(localStorage.getItem("bh_wf_parcels")) || JSON.parse(JSON.stringify(DEFAULT_PARCELS));
+    let complaints = JSON.parse(localStorage.getItem("bh_wf_complaints")) || JSON.parse(JSON.stringify(DEFAULT_COMPLAINTS));
+    let transferRequests = JSON.parse(localStorage.getItem("bh_wf_transfers")) || JSON.parse(JSON.stringify(DEFAULT_TRANSFERS));
+    let smsLogs = JSON.parse(localStorage.getItem("bh_wf_smsLogs")) || [];
 
     function t(key) {
         return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.om[key] || key;
@@ -979,11 +1088,15 @@
             t_passLabel: "passLabel", t_loginBtn: "loginBtn", t_hintTitle: "hintTitle",
             t_headerTitle: "headerTitle", t_badge: "badge", t_resetBtn: "resetBtn",
             t_logoutBtn: "logoutBtn", t_statParcels: "statParcels", t_statPaid: "statPaid",
-            t_statUnpaid: "statUnpaid", t_statComplaints: "statComplaints",
+            t_statUnpaid: "statUnpaid", t_statPendingApprovals: "statPendingApprovals",
             t_lookupTitle: "lookupTitle", t_lookupDesc: "lookupDesc", t_lookupLabel: "lookupLabel",
             t_lookupBtn: "lookupBtn", t_transferTitle: "transferTitle", t_transferDesc: "transferDesc",
             t_trParcelLabel: "trParcelLabel", t_trOwnerLabel: "trOwnerLabel", t_trPhoneLabel: "trPhoneLabel",
-            t_trRefLabel: "trRefLabel", t_trBtn: "trBtn", t_regTitle: "regTitle", t_regDesc: "regDesc",
+            t_trRefLabel: "trRefLabel", t_trBtn: "trBtn",
+            t_approvalChainTitle: "approvalChainTitle", t_approvalChainDesc: "approvalChainDesc",
+            t_thReqId: "thReqId", t_thReqParcel: "thReqParcel", t_thReqChange: "thReqChange",
+            t_thReqChain: "thReqChain", t_thReqStatus: "thReqStatus", t_thReqAct: "thReqAct",
+            t_regTitle: "regTitle", t_regDesc: "regDesc",
             t_regParcelLabel: "regParcelLabel", t_regOwnerLabel: "regOwnerLabel", t_regPhoneLabel: "regPhoneLabel",
             t_regGandaAreaLabel: "regGandaAreaLabel", t_regZoneTaxLabel: "regZoneTaxLabel",
             t_optUnpaid: "optUnpaid", t_optPaid: "optPaid", t_regBtn: "regBtn",
@@ -1011,14 +1124,16 @@
     }
 
     function saveState() {
-        localStorage.setItem("bh_lang_parcels", JSON.stringify(parcels));
-        localStorage.setItem("bh_lang_complaints", JSON.stringify(complaints));
-        localStorage.setItem("bh_lang_smsLogs", JSON.stringify(smsLogs));
+        localStorage.setItem("bh_wf_parcels", JSON.stringify(parcels));
+        localStorage.setItem("bh_wf_complaints", JSON.stringify(complaints));
+        localStorage.setItem("bh_wf_transfers", JSON.stringify(transferRequests));
+        localStorage.setItem("bh_wf_smsLogs", JSON.stringify(smsLogs));
     }
 
     function resetDemoData() {
         parcels = JSON.parse(JSON.stringify(DEFAULT_PARCELS));
         complaints = JSON.parse(JSON.stringify(DEFAULT_COMPLAINTS));
+        transferRequests = JSON.parse(JSON.stringify(DEFAULT_TRANSFERS));
         smsLogs = [];
         saveState();
         renderAll();
@@ -1103,6 +1218,134 @@
         renderMap(found.parcelId);
     }
 
+    // SUBMIT TRANSFER TO MULTI-LEVEL APPROVAL QUEUE
+    document.getElementById("transferForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const parcelId = document.getElementById("transferParcelId").value.trim().toUpperCase();
+        const newOwner = document.getElementById("newOwnerName").value.trim();
+        const newPhone = document.getElementById("newOwnerPhone").value.trim();
+        const ref = document.getElementById("approvalRef").value.trim();
+        const tBox = document.getElementById("transferBox");
+
+        const item = parcels.find(p => p.parcelId.toUpperCase() === parcelId);
+        tBox.style.display = "block";
+
+        if (!item) {
+            tBox.className = "status-box res-bad";
+            tBox.innerHTML = `❌ ${parcelId}`;
+            return;
+        }
+
+        if (item.status === "CONFLICT") {
+            tBox.className = "status-box res-warn";
+            tBox.innerHTML = `⚠️ ${parcelId} (${t("legWarn")})`;
+            return;
+        }
+
+        const reqId = "TR-" + (200 + transferRequests.length + 1);
+        transferRequests.unshift({
+            reqId,
+            parcelId: item.parcelId,
+            ganda: item.ganda,
+            oldOwner: item.owner,
+            newOwner,
+            newPhone,
+            ref,
+            officerApproved: false,
+            processApproved: false,
+            mayorApproved: false,
+            rejected: false
+        });
+
+        saveState();
+        tBox.className = "status-box res-info";
+        tBox.innerHTML = `📤 <strong>${reqId}</strong> (${item.parcelId}): ${t("statusPendingOfficer")}`;
+
+        renderAll(item.parcelId);
+        this.reset();
+    });
+
+    function approveStep(reqId, role) {
+        const req = transferRequests.find(r => r.reqId === reqId);
+        if (!req || req.rejected) return;
+
+        if (role === "officer" && !req.officerApproved) {
+            req.officerApproved = true;
+        } else if (role === "process" && req.officerApproved && !req.processApproved) {
+            req.processApproved = true;
+        } else if (role === "mayor" && req.officerApproved && req.processApproved && !req.mayorApproved) {
+            req.mayorApproved = true;
+            const parcel = parcels.find(p => p.parcelId === req.parcelId);
+            if (parcel) {
+                parcel.owner = req.newOwner;
+                parcel.phone = req.newPhone;
+            }
+            const smsText = `Bule Hora (${req.ganda}): ${req.parcelId} ${req.oldOwner} -> ${req.newOwner} [${req.ref}]`;
+            dispatchPhoneAlert(req.newPhone, smsText, "APPROVED");
+        }
+
+        saveState();
+        renderAll(req.parcelId);
+    }
+
+    function rejectRequest(reqId) {
+        const req = transferRequests.find(r => r.reqId === reqId);
+        if (!req || req.mayorApproved) return;
+        req.rejected = true;
+        saveState();
+        renderAll();
+    }
+
+    function renderApprovalQueue() {
+        const tbody = document.getElementById("approvalQueueBody");
+        const pendingCount = transferRequests.filter(r => !r.mayorApproved && !r.rejected).length;
+        document.getElementById("statPendingApprovals").textContent = pendingCount;
+
+        tbody.innerHTML = transferRequests.map(r => {
+            const s1 = `<span class="pill ${r.officerApproved ? 'p-ok' : 'p-warn'}">${t("stepOfficer")}: ${r.officerApproved ? '✔' : '⏳'}</span>`;
+            const s2 = `<span class="pill ${r.processApproved ? 'p-ok' : 'p-warn'}">${t("stepProcess")}: ${r.processApproved ? '✔' : '⏳'}</span>`;
+            const s3 = `<span class="pill ${r.mayorApproved ? 'p-ok' : 'p-warn'}">${t("stepMayor")}: ${r.mayorApproved ? '✔' : '⏳'}</span>`;
+
+            let statePill = `<span class="pill p-warn">${t("statusPendingOfficer")}</span>`;
+            let actionHtml = "";
+
+            if (r.rejected) {
+                statePill = `<span class="pill p-bad">${t("statusRejected")}</span>`;
+            } else if (r.mayorApproved) {
+                statePill = `<span class="pill p-ok">${t("statusApproved")}</span>`;
+            } else if (!r.officerApproved) {
+                statePill = `<span class="pill p-warn">${t("statusPendingOfficer")}</span>`;
+                actionHtml = `<div class="action-btns">
+                    <button type="button" class="btn-green" onclick="approveStep('${r.reqId}', 'officer')">${t("approveOfficerBtn")}</button>
+                    <button type="button" class="btn-reject" onclick="rejectRequest('${r.reqId}')">${t("rejectBtn")}</button>
+                </div>`;
+            } else if (!r.processApproved) {
+                statePill = `<span class="pill p-info">${t("statusPendingProcess")}</span>`;
+                actionHtml = `<div class="action-btns">
+                    <button type="button" class="btn-green" onclick="approveStep('${r.reqId}', 'process')">${t("approveProcessBtn")}</button>
+                    <button type="button" class="btn-reject" onclick="rejectRequest('${r.reqId}')">${t("rejectBtn")}</button>
+                </div>`;
+            } else {
+                statePill = `<span class="pill p-info">${t("statusPendingMayor")}</span>`;
+                actionHtml = `<div class="action-btns">
+                    <button type="button" class="btn-sms" onclick="approveStep('${r.reqId}', 'mayor')">${t("approveMayorBtn")}</button>
+                    <button type="button" class="btn-reject" onclick="rejectRequest('${r.reqId}')">${t("rejectBtn")}</button>
+                </div>`;
+            }
+
+            return `
+                <tr>
+                    <td><strong>${r.reqId}</strong><br><small style="color:#64748b;">${r.ref}</small></td>
+                    <td><strong>${r.parcelId}</strong><br><small style="color:#64748b;">${r.ganda}</small></td>
+                    <td>${r.oldOwner} → <strong>${r.newOwner}</strong><br><small style="color:#64748b;">${r.newPhone}</small></td>
+                    <td><div class="chain-steps">${s1}${s2}${s3}</div></td>
+                    <td>${statePill}</td>
+                    <td>${actionHtml || "-"}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
     document.getElementById("registerLandForm").addEventListener("submit", function(e) {
         e.preventDefault();
         const parcelId = document.getElementById("regParcelId").value.trim().toUpperCase();
@@ -1136,44 +1379,6 @@
         rBox.style.display = "block";
         rBox.className = "status-box res-ok";
         rBox.innerHTML = `✅ <strong>${parcelId}</strong> (${phone})<br><small>${smsText}</small>`;
-
-        renderAll(parcelId);
-        this.reset();
-    });
-
-    document.getElementById("transferForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const parcelId = document.getElementById("transferParcelId").value.trim().toUpperCase();
-        const newOwner = document.getElementById("newOwnerName").value.trim();
-        const newPhone = document.getElementById("newOwnerPhone").value.trim();
-        const ref = document.getElementById("approvalRef").value.trim();
-        const tBox = document.getElementById("transferBox");
-
-        const item = parcels.find(p => p.parcelId.toUpperCase() === parcelId);
-        tBox.style.display = "block";
-
-        if (!item) {
-            tBox.className = "status-box res-bad";
-            tBox.innerHTML = `❌ ${parcelId}`;
-            return;
-        }
-
-        if (item.status === "CONFLICT") {
-            tBox.className = "status-box res-warn";
-            tBox.innerHTML = `⚠️ ${parcelId} (${t("legWarn")})`;
-            return;
-        }
-
-        const oldOwner = item.owner;
-        item.owner = newOwner;
-        item.phone = newPhone;
-        saveState();
-
-        const smsText = `Bule Hora (${item.ganda}): ${parcelId} ${oldOwner} -> ${newOwner} [${ref}]`;
-        dispatchPhoneAlert(newPhone, smsText, "TRANSFER");
-
-        tBox.className = "status-box res-ok";
-        tBox.innerHTML = `✅ ${oldOwner} → <strong>${newOwner}</strong> (${ref})`;
 
         renderAll(parcelId);
         this.reset();
@@ -1246,7 +1451,8 @@
         document.getElementById("statTotalParcels").textContent = parcels.length;
         document.getElementById("statPaidTax").textContent = parcels.filter(p => p.taxPaid).length;
         document.getElementById("statUnpaidTax").textContent = parcels.filter(p => !p.taxPaid).length;
-        document.getElementById("statComplaints").textContent = complaints.length;
+
+        renderApprovalQueue();
 
         const tbody = document.getElementById("registryTableBody");
         tbody.innerHTML = parcels.map(p => {
