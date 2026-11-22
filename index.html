@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulchiinsa Magaalaa Bulee Horaa — Sirna Kaadaastiraa & Master Plan</title>
+    <title>Bulchiinsa Magaalaa Bulee Horaa — Sirna Kaadaastiraa, E-Carta, GIS & Master Plan</title>
     <style>
         :root {
             --navy: #0b2545;
@@ -274,6 +274,8 @@
         .btn-green { background: #15803d; color: #fff; width: auto; padding: 6px 10px; font-size: 12px; }
         .btn-sms { background: #0284c7; color: #fff; width: auto; padding: 6px 10px; font-size: 12px; }
         .btn-reject { background: #dc2626; color: #fff; width: auto; padding: 6px 10px; font-size: 12px; }
+        .btn-cert { background: #334155; color: #fff; width: auto; padding: 6px 10px; font-size: 12px; }
+        .btn-zoom { background: #e2e8f0; color: #0f172a; width: auto; padding: 5px 10px; font-size: 12px; border: 1px solid #cbd5e1; }
 
         .quick-bar {
             display: flex;
@@ -336,12 +338,20 @@
             margin-bottom: 10px;
         }
 
+        .map-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         .legend {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             font-size: 12px;
             font-weight: 600;
+            margin-bottom: 8px;
         }
 
         .legend span::before {
@@ -361,10 +371,11 @@
 
         svg {
             width: 100%;
-            height: 270px;
+            height: 280px;
             background: #f8fafc;
             border-radius: 8px;
             border: 1px solid #cbd5e1;
+            overflow: hidden;
         }
 
         .table-wrap { overflow-x: auto; }
@@ -421,6 +432,77 @@
 
         .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
         .chain-steps { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11.5px; font-weight: 700; }
+
+        /* E-CARTA CERTIFICATE MODAL */
+        #certModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 21, 41, 0.65);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .cert-sheet {
+            background: #fff;
+            width: 100%;
+            max-width: 680px;
+            border-radius: 12px;
+            padding: 26px;
+            border: 3px solid var(--navy);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .cert-header {
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .cert-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+        }
+
+        .cert-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .cert-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .cert-actions button { width: auto; padding: 9px 16px; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #certModal, #certModal * { visibility: visible; }
+            #certModal {
+                position: static;
+                background: none;
+                padding: 0;
+            }
+            .cert-sheet {
+                box-shadow: none;
+                border: 2px solid #000;
+                max-height: none;
+            }
+            .cert-actions { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -434,7 +516,7 @@
         </div>
 
         <h2 id="t_loginTitle">🏛️ Bulchiinsa Magaalaa Bulee Horaa</h2>
-        <p id="t_loginSub">Sirna Kaadaastiraa, Master Plan Zoning, Gibira &amp; Dabarsa Lafaa</p>
+        <p id="t_loginSub">Sirna Kaadaastiraa, E-Carta, GIS, Master Plan &amp; Dabarsa Lafaa</p>
 
         <form id="loginForm">
             <div class="form-group">
@@ -464,7 +546,7 @@
     <header>
         <div class="header-inner">
             <div>
-                <h1 id="t_headerTitle">🏛️ Bulchiinsa Magaalaa Bulee Horaa — Sirna Kaadaastiraa &amp; Master Plan</h1>
+                <h1 id="t_headerTitle">🏛️ Bulchiinsa Magaalaa Bulee Horaa — E-Carta, GIS &amp; Master Plan</h1>
                 <p id="t_headerSub">Gandoota: Ejersa Foora, Ardaa Biyyaa, Bulee Qanya, Goroo Gudinaa, Goroo Abayyii | Ogeessa: <strong id="activeAdminLabel">admin_demo</strong></p>
             </div>
             <div class="header-actions">
@@ -483,7 +565,7 @@
     <div class="container">
         <div class="stats-row">
             <div class="stat-box">
-                <div class="stat-label" id="t_statParcels">Paarsilii Galmaa'e</div>
+                <div class="stat-label" id="t_statParcels">Paarsilii / E-Carta Galmaa'e</div>
                 <div class="stat-val" id="statTotalParcels">0</div>
             </div>
             <div class="stat-box">
@@ -502,9 +584,9 @@
 
         <div class="grid">
             <div class="card">
-                <h2 id="t_lookupTitle">👤 Sakatta'iinsa Ogeessaa: Naannoo Master Plan &amp; Ragaa Maamila</h2>
+                <h2 id="t_lookupTitle">👤 Sakatta'iinsa Ogeessaa: E-Carta, Master Plan &amp; GIS</h2>
                 <p id="t_lookupDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Ogeessi yeroo maamila dubbisu naannoo Master Plan adda baasuun ykn maqaa/Parcel ID tiin sakatta'ee haala lafaa ilaaluu danda'a.
+                    Ogeessi yeroo maamila dubbisu naannoo Master Plan adda baasuun ykn E-Carta No. / Parcel ID / maqaa tiin sakatta'ee ragaa ilaaluu danda'a.
                 </p>
 
                 <div class="zone-filter-bar" id="zoneFilterBar">
@@ -517,17 +599,17 @@
 
                 <form id="clientLookupForm">
                     <div class="form-group">
-                        <label id="t_lookupLabel">Maqaa Abbaa Lafaa, Ganda, ykn Parcel ID:</label>
-                        <input type="text" id="lookupInput" placeholder="Fkn: BH-EF-101 ykn Abiti Mama" required>
+                        <label id="t_lookupLabel">Lakk. E-Carta, Parcel ID, Maqaa, ykn Ganda:</label>
+                        <input type="text" id="lookupInput" placeholder="Fkn: EC-BH-101 ykn BH-EF-101" required>
                     </div>
-                    <button type="submit" class="btn-navy" id="t_lookupBtn">🔍 Sakatta'i &amp; Naannoo Master Plan Ilaali</button>
+                    <button type="submit" class="btn-navy" id="t_lookupBtn">🔍 Sakatta'i &amp; E-Carta / GIS Ilaali</button>
                 </form>
 
                 <div class="quick-bar">
-                    <button type="button" class="chip" onclick="runClientLookup('BH-EF-101')">🏠 BH-EF-101 (Mana Jireenyaa)</button>
-                    <button type="button" class="chip" onclick="runClientLookup('BH-AB-102')">🏭 BH-AB-102 (Indastirii)</button>
-                    <button type="button" class="chip" onclick="runClientLookup('BH-GG-104')">🏢 BH-GG-104 (Daldalaa)</button>
-                    <button type="button" class="chip" onclick="runClientLookup('BH-BQ-103')">🛣️ BH-BQ-103 (Master Plan)</button>
+                    <button type="button" class="chip" onclick="runClientLookup('EC-BH-101')">🗺️ EC-BH-101 (Mana Jireenyaa)</button>
+                    <button type="button" class="chip" onclick="runClientLookup('EC-BH-102')">🏭 EC-BH-102 (Indastirii)</button>
+                    <button type="button" class="chip" onclick="runClientLookup('EC-BH-104')">🏢 EC-BH-104 (Daldalaa)</button>
+                    <button type="button" class="chip" onclick="runClientLookup('EC-BH-103')">🛣️ EC-BH-103 (Master Plan)</button>
                 </div>
 
                 <div id="lookupResultBox" class="status-box"></div>
@@ -541,8 +623,8 @@
 
                 <form id="transferForm">
                     <div class="form-group">
-                        <label id="t_trParcelLabel">Paarsilii ID Gurguramu / Maqaan Jijjiiramu:</label>
-                        <input type="text" id="transferParcelId" placeholder="Fkn: BH-EF-101" required>
+                        <label id="t_trParcelLabel">Paarsilii ID ykn E-Carta No.:</label>
+                        <input type="text" id="transferParcelId" placeholder="Fkn: BH-EF-101 ykn EC-BH-101" required>
                     </div>
 
                     <div class="form-group">
@@ -567,46 +649,50 @@
             </div>
         </div>
 
-        <!-- KAARTAA MASTER PLAN SADARKAA IDIL-ADDUNYAA + SMS FEED -->
         <div class="grid">
             <div class="card">
                 <div class="map-top">
-                    <h2 style="border:none; margin:0; padding:0;" id="t_mapTitle">🗺️ Kaartaa Master Plan Zoning (Sadarkaa Idil-Addunyaa)</h2>
-                    <div class="legend">
-                        <span class="l-res" id="t_legRes">Mana Jireenyaa (R-1)</span>
-                        <span class="l-ind" id="t_legInd">Indastirii (I-1)</span>
-                        <span class="l-com" id="t_legCom">Daldalaa (C-1)</span>
-                        <span class="l-mp" id="t_legMp">Sarara Master Plan (MP)</span>
+                    <h2 style="border:none; margin:0; padding:0;" id="t_mapTitle">🗺️ Kaartaa E-Carta &amp; Master Plan Zoning</h2>
+                    <div class="map-controls">
+                        <button type="button" class="btn-zoom" onclick="adjustZoom(0.15)">🔍 +</button>
+                        <button type="button" class="btn-zoom" onclick="adjustZoom(-0.15)">🔍 -</button>
+                        <button type="button" class="btn-zoom" onclick="resetZoom()">↺</button>
                     </div>
                 </div>
-                <svg id="adminMap" viewBox="0 0 800 270">
-                    <!-- International Master Plan Zoning Grid -->
-                    <rect x="20" y="16" width="375" height="110" rx="6" fill="rgba(34,197,94,0.08)" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6,4"/>
-                    <text x="30" y="32" font-size="11" fill="#15803d" font-weight="bold">ZONE R-1: MANA JIREENYAA (RESIDENTIAL)</text>
+                <div class="legend">
+                    <span class="l-res" id="t_legRes">Mana Jireenyaa (R-1)</span>
+                    <span class="l-ind" id="t_legInd">Indastirii (I-1)</span>
+                    <span class="l-com" id="t_legCom">Daldalaa (C-1)</span>
+                    <span class="l-mp" id="t_legMp">Sarara Master Plan (MP)</span>
+                </div>
+                <svg id="adminMap" viewBox="0 0 800 280">
+                    <g id="mapViewport">
+                        <rect x="20" y="16" width="375" height="115" rx="6" fill="rgba(34,197,94,0.08)" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <text x="30" y="32" font-size="11" fill="#15803d" font-weight="bold">ZONE R-1: MANA JIREENYAA (RESIDENTIAL)</text>
 
-                    <rect x="405" y="16" width="375" height="110" rx="6" fill="rgba(139,92,246,0.08)" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="6,4"/>
-                    <text x="415" y="32" font-size="11" fill="#6d28d9" font-weight="bold">ZONE I-1: NAAANNOO INDASTIRII (INDUSTRIAL)</text>
+                        <rect x="405" y="16" width="375" height="115" rx="6" fill="rgba(139,92,246,0.08)" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <text x="415" y="32" font-size="11" fill="#6d28d9" font-weight="bold">ZONE I-1: NAAANNOO INDASTIRII (INDUSTRIAL)</text>
 
-                    <rect x="20" y="136" width="375" height="118" rx="6" fill="rgba(14,165,233,0.08)" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="6,4"/>
-                    <text x="30" y="152" font-size="11" fill="#0369a1" font-weight="bold">ZONE C-1: DALDALAA &amp; TAJAAJILA (COMMERCIAL)</text>
+                        <rect x="20" y="140" width="375" height="122" rx="6" fill="rgba(14,165,233,0.08)" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <text x="30" y="156" font-size="11" fill="#0369a1" font-weight="bold">ZONE C-1: DALDALAA &amp; TAJAAJILA (COMMERCIAL)</text>
 
-                    <rect x="405" y="136" width="375" height="118" rx="6" fill="rgba(245,158,11,0.12)" stroke="#d97706" stroke-width="2" stroke-dasharray="8,5"/>
-                    <text x="415" y="152" font-size="11" fill="#b45309" font-weight="bold">ZONE MP-ROW: SARARA MASTER PLAN &amp; MISOOMAA</text>
+                        <rect x="405" y="140" width="375" height="122" rx="6" fill="rgba(245,158,11,0.12)" stroke="#d97706" stroke-width="2" stroke-dasharray="8,5"/>
+                        <text x="415" y="156" font-size="11" fill="#b45309" font-weight="bold">ZONE MP-ROW: SARARA MASTER PLAN &amp; MISOOMAA</text>
 
-                    <g id="adminMapShapes"></g>
+                        <g id="adminMapShapes"></g>
+                    </g>
                 </svg>
             </div>
 
             <div class="card">
                 <h2 id="t_smsTitle">📱 Ergaa Gabaabaa Bilbila Abbaa Lafaa Irratti Ergame (SMS Log)</h2>
                 <p id="t_smsDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Ergaan yeroo galmee lafaa, dabarsa maqaa mirkanaa'e, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.
+                    Ergaan yeroo galmee E-Carta / lafaa, dabarsa maqaa mirkanaa'e, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.
                 </p>
                 <div id="smsFeed" class="sms-feed"></div>
             </div>
         </div>
 
-        <!-- GABATEE MIRKANEESSA SADARKAA HOGGANTOOTAA -->
         <div class="card" style="margin-bottom:20px;">
             <h2 id="t_approvalChainTitle">🛡️ Eeyyama Hoggantoota Sadarkaa Sadarkaan (Ogeessa → Abbaa Adeemsaa → Hogganaa Olaanaa / Kaantiibaa)</h2>
             <p id="t_approvalChainDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
@@ -631,15 +717,18 @@
 
         <div class="grid">
             <div class="card">
-                <h2 id="t_regTitle">📝 Galmee Lafa Haaraa &amp; Ergii Bilbila Abbaa Lafaa</h2>
+                <h2 id="t_regTitle">📝 Galmee E-Carta Haaraa, GIS &amp; SMS</h2>
                 <p id="t_regDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Gandoota Bulee Horaa keessatti lafa yeroo galmeessan, bal'ina, ganda, naannoo Master Plan, fi gibira wajjin bilbila irratti ergaan ni ergama.
+                    Gandoota Bulee Horaa keessatti E-Carta haaraa galmeessaa; Parcel ID, E-Carta No., GIS coordinate, naannoo Master Plan, fi gibira wajjin qabata.
                 </p>
 
                 <form id="registerLandForm">
                     <div class="form-group">
-                        <label id="t_regParcelLabel">Lakkoofsa Paarsilii (Parcel ID):</label>
-                        <input type="text" id="regParcelId" placeholder="Fkn: BH-GG-106" required>
+                        <label id="t_regParcelLabel">Parcel ID &amp; Lakkoofsa E-Carta:</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            <input type="text" id="regParcelId" placeholder="Fkn: BH-GG-106" required>
+                            <input type="text" id="regCartaNo" placeholder="Fkn: EC-BH-106" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -667,6 +756,15 @@
                     </div>
 
                     <div class="form-group">
+                        <label id="t_regGisLabel">GIS Coordinate (Latitude &amp; Longitude):</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px;">
+                            <input type="text" id="regLat" placeholder="Lat: 5.6410° N" value="5.6410° N" required>
+                            <input type="text" id="regLon" placeholder="Lon: 38.2490° E" value="38.2490° E" required>
+                            <button type="button" class="chip" onclick="autoFillGis()">📍 GPS</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label id="t_regZoneTaxLabel">Master Plan Zone &amp; Haala Gibiraa:</label>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                             <select id="regZoneCode">
@@ -682,7 +780,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-gold" id="t_regBtn">💾 Galmeessi &amp; Bilbila Abbaa Lafaa Irratti Ergi</button>
+                    <button type="submit" class="btn-gold" id="t_regBtn">💾 E-Carta Galmeessi &amp; Bilbila Irratti Ergi</button>
                 </form>
 
                 <div id="regStatusBox" class="status-box"></div>
@@ -691,7 +789,7 @@
             <div class="card">
                 <h2 id="t_compTitle">📩 Iyyannoo / Komii Maamilaa Galchuu</h2>
                 <p id="t_compDesc" style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Iyyannoo daangaa, komii gibiraa, ykn kaartaa maamilli dhiyeesse asirratti galmeessi.
+                    Iyyannoo daangaa, E-Carta, komii gibiraa, ykn Master Plan maamilli dhiyeesse asirratti galmeessi.
                 </p>
 
                 <form id="complaintForm">
@@ -701,9 +799,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label id="t_compParcelGandaLabel">Paarsilii ID &amp; Ganda:</label>
+                        <label id="t_compParcelGandaLabel">Paarsilii / E-Carta ID &amp; Ganda:</label>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                            <input type="text" id="compParcel" placeholder="Fkn: BH-AB-102">
+                            <input type="text" id="compParcel" placeholder="Fkn: EC-BH-102">
                             <select id="compGanda">
                                 <option value="Ejersa Foora">Ejersa Foora</option>
                                 <option value="Ardaa Biyyaa">Ardaa Biyyaa</option>
@@ -717,9 +815,9 @@
                     <div class="form-group">
                         <label id="t_compTypeLabel">Gosa Iyyannoo:</label>
                         <select id="compType">
+                            <option value="E-Carta Verification">E-Carta Verification</option>
                             <option value="Boundary Verification">Boundary Verification</option>
                             <option value="Land Tax Inquiry">Land Tax Inquiry</option>
-                            <option value="Ownership Transfer">Ownership Transfer</option>
                             <option value="Master Plan Complaint">Master Plan Complaint</option>
                         </select>
                     </div>
@@ -737,18 +835,18 @@
         </div>
 
         <div class="card" style="margin-bottom:20px;">
-            <h2 id="t_regTableTitle">💰 Galmee Lafaa, Naannoo Master Plan &amp; Gibira</h2>
+            <h2 id="t_regTableTitle">💰 Galmee E-Carta, GIS Coordinate, Master Plan &amp; Gibira</h2>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
-                            <th id="t_thParcel">Paarsilii &amp; Ganda</th>
+                            <th id="t_thParcel">E-Carta &amp; Paarsilii</th>
                             <th id="t_thOwner">Abbaa Lafaa &amp; Zone</th>
-                            <th id="t_thPhone">Bilbila</th>
+                            <th id="t_thGis">GIS Coordinate</th>
                             <th id="t_thArea">Bal'ina</th>
                             <th id="t_thTaxAmt">Gibira</th>
                             <th id="t_thTaxSt">Haala Gibiraa</th>
-                            <th id="t_thAct">Tarkaanfii</th>
+                            <th id="t_thAct">Tarkaanfii &amp; Waraqaa E-Carta</th>
                         </tr>
                     </thead>
                     <tbody id="registryTableBody"></tbody>
@@ -764,7 +862,7 @@
                         <tr>
                             <th id="t_thCompId">Lakk.</th>
                             <th id="t_thCompName">Maqaa</th>
-                            <th id="t_thCompParcel">Paarsilii &amp; Ganda</th>
+                            <th id="t_thCompParcel">E-Carta &amp; Ganda</th>
                             <th id="t_thCompType">Gosa</th>
                             <th id="t_thCompDesc">Ibsa</th>
                             <th id="t_thCompSt">Haala</th>
@@ -773,6 +871,23 @@
                     <tbody id="complaintsTableBody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- E-CARTA CERTIFICATE / PRINT MODAL -->
+<div id="certModal" onclick="if(event.target===this) closeCertModal()">
+    <div class="cert-sheet">
+        <div class="cert-header">
+            <h2 style="margin:0; color:var(--navy);" id="certTitle">🏛️ BULCHIINSA MAGAALAA BULEE HORAA</h2>
+            <p style="margin:4px 0 0; font-size:13px; color:var(--muted);" id="certSub">Waraqaa E-Carta, Kaadaastiraa, GIS &amp; Master Plan</p>
+        </div>
+
+        <div class="cert-grid" id="certBody"></div>
+
+        <div class="cert-actions">
+            <button type="button" class="btn-navy" onclick="window.print()" id="certPrintBtn">🖨️ Maxxansi (Print)</button>
+            <button type="button" class="btn-reject" onclick="closeCertModal()" id="certCloseBtn">Cufi (Close)</button>
         </div>
     </div>
 </div>
@@ -804,7 +919,7 @@
             en: "Commercial (C-1)",
             fill: "#bae6fd",
             stroke: "#0369a1",
-            x: 45, y: 165, w: 155, h: 72
+            x: 45, y: 168, w: 155, h: 72
         },
         MASTER_PLAN: {
             code: "MP-ROW",
@@ -813,40 +928,40 @@
             en: "Master Plan Corridor (MP-ROW)",
             fill: "#fde68a",
             stroke: "#b45309",
-            x: 425, y: 165, w: 165, h: 72
+            x: 425, y: 168, w: 165, h: 72
         }
     };
 
     const TRANSLATIONS = {
         om: {
             loginTitle: "🏛️ Bulchiinsa Magaalaa Bulee Horaa",
-            loginSub: "Sirna Kaadaastiraa, Master Plan Zoning, Gibira & Dabarsa Lafaa",
+            loginSub: "Sirna Kaadaastiraa, E-Carta, GIS, Master Plan & Dabarsa Lafaa",
             userLabel: "Maqaa Fayyadamaa (Username):",
             passLabel: "Jecha Darbii (Password):",
             loginBtn: "🔐 Seensa Mirkaneessi (Login)",
             loginErr: "❌ Maqaan fayyadamaa ykn jechi darbii sirrii miti!",
             hintTitle: "Ragaa Seensaa:",
-            headerTitle: "🏛️ Bulchiinsa Magaalaa Bulee Horaa — Sirna Kaadaastiraa & Master Plan",
+            headerTitle: "🏛️ Bulchiinsa Magaalaa Bulee Horaa — E-Carta, GIS & Master Plan",
             headerSub: "Gandoota: Ejersa Foora, Ardaa Biyyaa, Bulee Qanya, Goroo Gudinaa, Goroo Abayyii | Ogeessa:",
             badge: "📍 BULEE HORAA",
             resetBtn: "🔄 Daataa Jalqabaatti Deebisi",
             logoutBtn: "Ba'i (Logout)",
-            statParcels: "Paarsilii Galmaa'e",
+            statParcels: "Paarsilii / E-Carta Galmaa'e",
             statPaid: "Gibira Kaffalame",
             statUnpaid: "Gibira Hin Kaffalamne",
             statPendingApprovals: "Eeyyama Eeggataa",
-            lookupTitle: "👤 Sakatta'iinsa Ogeessaa: Naannoo Master Plan & Ragaa Maamila",
-            lookupDesc: "Ogeessi yeroo maamila dubbisu naannoo Master Plan adda baasuun ykn maqaa/Parcel ID tiin sakatta'ee haala lafaa ilaaluu danda'a.",
+            lookupTitle: "👤 Sakatta'iinsa Ogeessaa: E-Carta, Master Plan & GIS",
+            lookupDesc: "Ogeessi yeroo maamila dubbisu naannoo Master Plan adda baasuun ykn E-Carta No. / Parcel ID / maqaa tiin sakatta'ee ragaa ilaaluu danda'a.",
             zf_all: "Hunda (All)",
             zf_res: "🏠 Mana Jireenyaa (R-1)",
             zf_ind: "🏭 Indastirii (I-1)",
             zf_com: "🏢 Daldalaa (C-1)",
             zf_mp: "🛣️ Sarara Master Plan (MP)",
-            lookupLabel: "Maqaa Abbaa Lafaa, Ganda, ykn Parcel ID:",
-            lookupBtn: "🔍 Sakatta'i & Naannoo Master Plan Ilaali",
+            lookupLabel: "Lakk. E-Carta, Parcel ID, Maqaa, ykn Ganda:",
+            lookupBtn: "🔍 Sakatta'i & E-Carta / GIS Ilaali",
             transferTitle: "🔄 Dabarsa Maqaa (Sadarkaa Hoggantootaan Mirkanaa'u)",
             transferDesc: "Dabarsi maqaa dura Ogeessa → Abbaa Adeemsaa → Hogganaa Olaanaa / Kaantiibaa sadarkaa sadarkaan mirkanaa'a.",
-            trParcelLabel: "Paarsilii ID Gurguramu / Maqaan Jijjiiramu:",
+            trParcelLabel: "Paarsilii ID ykn E-Carta No.:",
             trOwnerLabel: "Maqaa Abbaa Lafaa Haaraa:",
             trPhoneLabel: "Bilbila Abbaa Lafaa Haaraa (SMS / Alert):",
             trRefLabel: "Lakk. Galmee / Eeyyama Bulchiinsa Magaalaa:",
@@ -871,12 +986,13 @@
             statusPendingMayor: "Hogganaa Olaanaa / Kaantiibaa Eeggata",
             statusApproved: "Mirkanaa'eera (Jijjiirame)",
             statusRejected: "Didameera",
-            regTitle: "📝 Galmee Lafa Haaraa & Ergii Bilbila Abbaa Lafaa",
-            regDesc: "Gandoota Bulee Horaa keessatti lafa yeroo galmeessan, bal'ina, ganda, naannoo Master Plan, fi gibira wajjin bilbila irratti ergaan ni ergama.",
-            regParcelLabel: "Lakkoofsa Paarsilii (Parcel ID):",
+            regTitle: "📝 Galmee E-Carta Haaraa, GIS & SMS",
+            regDesc: "Gandoota Bulee Horaa keessatti E-Carta haaraa galmeessaa; Parcel ID, E-Carta No., GIS coordinate, naannoo Master Plan, fi gibira wajjin qabata.",
+            regParcelLabel: "Parcel ID & Lakkoofsa E-Carta:",
             regOwnerLabel: "Maqaa Guutuu Abbaa Lafaa:",
             regPhoneLabel: "Lakkoofsa Bilbilaa Abbaa Lafaa:",
             regGandaAreaLabel: "Ganda & Bal'ina Lafa (m²):",
+            regGisLabel: "GIS Coordinate (Latitude & Longitude):",
             regZoneTaxLabel: "Master Plan Zone & Haala Gibiraa:",
             zOptRes: "Mana Jireenyaa (R-1)",
             zOptInd: "Indastirii (I-1)",
@@ -884,33 +1000,33 @@
             zOptMp: "Sarara Master Plan (MP)",
             optUnpaid: "Gibira Hin Kaffalamne",
             optPaid: "Gibira Kaffalameera",
-            regBtn: "💾 Galmeessi & Bilbila Abbaa Lafaa Irratti Ergi",
+            regBtn: "💾 E-Carta Galmeessi & Bilbila Irratti Ergi",
             compTitle: "📩 Iyyannoo / Komii Maamilaa Galchuu",
-            compDesc: "Iyyannoo daangaa, komii gibiraa, ykn kaartaa maamilli dhiyeesse asirratti galmeessi.",
+            compDesc: "Iyyannoo daangaa, E-Carta, komii gibiraa, ykn Master Plan maamilli dhiyeesse asirratti galmeessi.",
             compNameLabel: "Maqaa Iyyataa / Maamila:",
-            compParcelGandaLabel: "Paarsilii ID & Ganda:",
+            compParcelGandaLabel: "Paarsilii / E-Carta ID & Ganda:",
             compTypeLabel: "Gosa Iyyannoo:",
             compDetailLabel: "Ibsa Iyyannoo Gabaabaa:",
             compBtn: "📥 Iyyannoo Galmeessi",
-            mapTitle: "🗺️ Kaartaa Master Plan Zoning (Sadarkaa Idil-Addunyaa)",
+            mapTitle: "🗺️ Kaartaa E-Carta & Master Plan Zoning",
             legRes: "Mana Jireenyaa (R-1)",
             legInd: "Indastirii (I-1)",
             legCom: "Daldalaa (C-1)",
             legMp: "Sarara Master Plan (MP)",
             smsTitle: "📱 Ergaa Gabaabaa Bilbila Abbaa Lafaa Irratti Ergame (SMS Log)",
-            smsDesc: "Ergaan yeroo galmee lafaa, dabarsa maqaa mirkanaa'e, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.",
-            regTableTitle: "💰 Galmee Lafaa, Naannoo Master Plan & Gibira",
-            thParcel: "Paarsilii & Ganda",
+            smsDesc: "Ergaan yeroo galmee E-Carta / lafaa, dabarsa maqaa mirkanaa'e, fi yaadachiisa gibiraa bilbila irratti ergame asitti mul'ata.",
+            regTableTitle: "💰 Galmee E-Carta, GIS Coordinate, Master Plan & Gibira",
+            thParcel: "E-Carta & Paarsilii",
             thOwner: "Abbaa Lafaa & Zone",
-            thPhone: "Bilbila",
+            thGis: "GIS Coordinate",
             thArea: "Bal'ina",
             thTaxAmt: "Gibira",
             thTaxSt: "Haala Gibiraa",
-            thAct: "Tarkaanfii",
+            thAct: "Tarkaanfii & Waraqaa E-Carta",
             compTableTitle: "📋 Tarree Iyyannoo / Komii Maamilaa",
             thCompId: "Lakk.",
             thCompName: "Maqaa",
-            thCompParcel: "Paarsilii & Ganda",
+            thCompParcel: "E-Carta & Ganda",
             thCompType: "Gosa",
             thCompDesc: "Ibsa",
             thCompSt: "Haala",
@@ -919,37 +1035,42 @@
             markPaidBtn: "✅ Kaffalameera Jechi",
             remindBtn: "⚠️ Yaadachiisa Gibiraa Ergi",
             msgBtn: "📱 Ergaa Ergi",
-            smsEmpty: "Ergaan gabaabaa bilbila abbaa lafaa irratti yeroo ergamu asirratti mul'ata."
+            certBtn: "🗺️ E-Carta / Maxxansi",
+            smsEmpty: "Ergaan gabaabaa bilbila abbaa lafaa irratti yeroo ergamu asirratti mul'ata.",
+            certTitle: "🏛️ BULCHIINSA MAGAALAA BULEE HORAA",
+            certSub: "Waraqaa E-Carta, Kaadaastiraa, GIS & Master Plan",
+            certPrintBtn: "🖨️ Maxxansi (Print)",
+            certCloseBtn: "Cufi (Close)"
         },
         am: {
             loginTitle: "🏛️ የቡሌ ሆራ ከተማ አስተዳደር",
-            loginSub: "የካዳስተር፣ የማስተር ፕላን ዞኒንግ፣ ግብር እና የስም ዝውውር ስርዓት",
+            loginSub: "የካዳስተር፣ ኢ-ካርታ፣ GIS፣ የማስተር ፕላን እና የስም ዝውውር ስርዓት",
             userLabel: "የተጠቃሚ ስም (Username):",
             passLabel: "የይለፍ ቃል (Password):",
             loginBtn: "🔐 ይግቡ (Login)",
             loginErr: "❌ የተጠቃሚ ስም ወይም የይለፍ ቃል የተሳሳተ ነው!",
             hintTitle: "የመግቢያ መረጃ:",
-            headerTitle: "🏛️ የቡሌ ሆራ ከተማ አስተዳደር — የካዳስተር እና የማስተር ፕላን ስርዓት",
+            headerTitle: "🏛️ የቡሌ ሆራ ከተማ አስተዳደር — ኢ-ካርታ፣ GIS እና ማስተር ፕላን",
             headerSub: "ቀበሌዎች፡ ኤጀርሳ ፎራ፣ አርዳ ቢያ፣ ቡሌ ቃኛ፣ ጎሮ ጉዲና፣ ጎሮ አባይ | ተጠቃሚ:",
             badge: "📍 ቡሌ ሆራ",
             resetBtn: "🔄 ወደ መነሻ መረጃ ይመልሱ",
             logoutBtn: "ውጣ (Logout)",
-            statParcels: "የተመዘገቡ ፓርሴሎች",
+            statParcels: "የተመዘገቡ ኢ-ካርታዎች",
             statPaid: "ግብር የተከፈለባቸው",
             statUnpaid: "ግብር ያልተከፈለባቸው",
             statPendingApprovals: "ፈቃድ የሚጠብቁ",
-            lookupTitle: "👤 የባለሙያ ፍተሻ፡ የማስተር ፕላን ዞን እና የደንበኛ መረጃ",
-            lookupDesc: "ባለሙያው ደንበኛ ሲያስተናግድ በማስተር ፕላን ዞን በመለየት ወይም በፓርሴል ቁጥር/ስም በመፈለግ የይዞታውን ሁኔታ ማየት ይችላል።",
+            lookupTitle: "👤 የባለሙያ ፍተሻ፡ ኢ-ካርታ፣ ማስተር ፕላን እና GIS",
+            lookupDesc: "ባለሙያው ደንበኛ ሲያስተናግድ በማስተር ፕላን ዞን ወይም በኢ-ካርታ ቁጥር / ፓርሴል / ስም በመፈለግ መረጃውን ማየት ይችላል።",
             zf_all: "ሁሉም (All)",
             zf_res: "🏠 የመኖሪያ አካባቢ (R-1)",
             zf_ind: "🏭 ኢንዱስትሪ (I-1)",
             zf_com: "🏢 ንግድ እና አገልግሎት (C-1)",
             zf_mp: "🛣️ የማስተር ፕላን መስመር (MP)",
-            lookupLabel: "የባለይዞታ ስም፣ ቀበሌ ወይም Parcel ID:",
-            lookupBtn: "🔍 ፈልግ እና የማስተር ፕላን ዞን ተመልከት",
+            lookupLabel: "የኢ-ካርታ ቁጥር፣ Parcel ID፣ ስም ወይም ቀበሌ:",
+            lookupBtn: "🔍 ፈልግ እና ኢ-ካርታ / GIS ተመልከት",
             transferTitle: "🔄 የስም ዝውውር (በደረጃ በደረጃ የአመራር ማረጋገጫ)",
             transferDesc: "የስም ዝውውር ሲቀርብ በባለሙያ → በሂደት መሪ → በከፍተኛ አመራር / ከንቲባ ደረጃ በደረጃ ይጸድቃል።",
-            trParcelLabel: "የሚተላለፍ የፓርሴል መለያ (Parcel ID):",
+            trParcelLabel: "የፓርሴል መለያ ወይም ኢ-ካርታ ቁጥር:",
             trOwnerLabel: "የአዲሱ ባለይዞታ ሙሉ ስም:",
             trPhoneLabel: "የአዲሱ ባለይዞታ ስልክ (SMS / Alert):",
             trRefLabel: "የከተማ አስተዳደር ፈቃድ / ማጣቀሻ ቁጥር:",
@@ -974,12 +1095,13 @@
             statusPendingMayor: "ከፍተኛ አመራር / ከንቲባ ይጠብቃል",
             statusApproved: "ጸድቋል (ተዛውሯል)",
             statusRejected: "ውድቅ ተደርጓል",
-            regTitle: "📝 አዲስ ይዞታ መመዝገብ እና የSMS መልዕክት መላክ",
-            regDesc: "በቡሌ ሆራ ቀበሌዎች አዲስ ይዞታ ሲመዘገብ ስፋት፣ ቀበሌ፣ የማስተር ፕላን ዞን እና ግብር በስልክ መልዕክት ይላካል።",
-            regParcelLabel: "የፓርሴል መለያ (Parcel ID):",
+            regTitle: "📝 አዲስ ኢ-ካርታ መመዝገብ፣ GIS እና SMS",
+            regDesc: "በቡሌ ሆራ ቀበሌዎች አዲስ ኢ-ካርታ ይመዝግቡ፤ Parcel ID፣ ኢ-ካርታ ቁጥር፣ GIS coordinate፣ ዞን እና ግብር ይይዛል።",
+            regParcelLabel: "Parcel ID እና የኢ-ካርታ ቁጥር:",
             regOwnerLabel: "የባለይዞታ ሙሉ ስም:",
             regPhoneLabel: "የባለይዞታ ስልክ ቁጥር:",
             regGandaAreaLabel: "ቀበሌ እና የመሬት ስፋት (m²):",
+            regGisLabel: "GIS Coordinate (Latitude & Longitude):",
             regZoneTaxLabel: "የማስተር ፕላን ዞን እና የግብር ሁኔታ:",
             zOptRes: "የመኖሪያ አካባቢ (R-1)",
             zOptInd: "ኢንዱስትሪ (I-1)",
@@ -987,33 +1109,33 @@
             zOptMp: "የማስተር ፕላን መስመር (MP)",
             optUnpaid: "ግብር ያልተከፈለ",
             optPaid: "ግብር የተከፈለ",
-            regBtn: "💾 መዝግብ እና ለባለይዞታው መልዕክት ላክ",
+            regBtn: "💾 ኢ-ካርታ መዝግብ እና መልዕክት ላክ",
             compTitle: "📩 የደንበኛ ቅሬታ / አቤቱታ መመዝገብ",
-            compDesc: "የወሰን፣ የግብር ወይም የካርታ አቤቱታ ሲቀርብ እዚህ ይመዝግቡ።",
+            compDesc: "የወሰን፣ የኢ-ካርታ፣ የግብር ወይም የማስተር ፕላን አቤቱታ ሲቀርብ እዚህ ይመዝግቡ።",
             compNameLabel: "የአመልካች / ደንበኛ ስም:",
-            compParcelGandaLabel: "የፓርሴል ቁጥር እና ቀበሌ:",
+            compParcelGandaLabel: "የፓርሴል / ኢ-ካርታ ቁጥር እና ቀበሌ:",
             compTypeLabel: "የአቤቱታ አይነት:",
             compDetailLabel: "አጭር የአቤቱታ ማብራሪያ:",
             compBtn: "📥 አቤቱታ መዝግብ",
-            mapTitle: "🗺️ የማስተር ፕላን ዞኒንግ ካርታ (ዓለም አቀፍ ደረጃ)",
+            mapTitle: "🗺️ የኢ-ካርታ እና ማስተር ፕላን ዞኒንግ ካርታ",
             legRes: "የመኖሪያ (R-1)",
             legInd: "ኢንዱስትሪ (I-1)",
             legCom: "ንግድ (C-1)",
             legMp: "ማስተር ፕላን (MP)",
             smsTitle: "📱 ለባለይዞታው የተላኩ የአጭር መልዕክት (SMS) ታሪክ",
             smsDesc: "በምዝገባ፣ በጸደቀ የስም ዝውውር እና በግብር ማስታወሻ ወቅት የተላኩ መልዕክቶች እዚህ ይታያሉ።",
-            regTableTitle: "💰 የይዞታ መዝገብ፣ የማስተር ፕላን ዞን እና ግብር",
-            thParcel: "ፓርሴል እና ቀበሌ",
+            regTableTitle: "💰 የኢ-ካርታ መዝገብ፣ GIS Coordinate፣ ማስተር ፕላን እና ግብር",
+            thParcel: "ኢ-ካርታ እና ፓርሴል",
             thOwner: "ባለይዞታ እና ዞን",
-            thPhone: "ስልክ",
+            thGis: "GIS Coordinate",
             thArea: "ስፋት",
             thTaxAmt: "ግብር",
             thTaxSt: "የግብር ሁኔታ",
-            thAct: "እርምጃ",
+            thAct: "እርምጃ እና ኢ-ካርታ ሰርተፍኬት",
             compTableTitle: "📋 የደንበኞች ቅሬታ / አቤቱታ ዝርዝር",
             thCompId: "ቁጥር",
             thCompName: "ስም",
-            thCompParcel: "ፓርሴል እና ቀበሌ",
+            thCompParcel: "ኢ-ካርታ እና ቀበሌ",
             thCompType: "አይነት",
             thCompDesc: "ማብራሪያ",
             thCompSt: "ሁኔታ",
@@ -1022,37 +1144,42 @@
             markPaidBtn: "✅ ተከፍሏል በል",
             remindBtn: "⚠️ የግብር ማስታወሻ ላክ",
             msgBtn: "📱 መልዕክት ላክ",
-            smsEmpty: "ለባለይዞታው የSMS መልዕክት ሲላክ እዚህ ይታያል።"
+            certBtn: "🗺️ ኢ-ካርታ / አትም",
+            smsEmpty: "ለባለይዞታው የSMS መልዕክት ሲላክ እዚህ ይታያል።",
+            certTitle: "🏛️ የቡሌ ሆራ ከተማ አስተዳደር",
+            certSub: "የኢ-ካርታ፣ ካዳስተር፣ GIS እና ማስተር ፕላን ሰርተፍኬት",
+            certPrintBtn: "🖨️ አትም (Print)",
+            certCloseBtn: "ዝጋ (Close)"
         },
         en: {
             loginTitle: "🏛️ Bule Hora City Administration",
-            loginSub: "Digital Cadastre, Master Plan Zoning, Tax & Transfers",
+            loginSub: "Digital Cadastre, E-Carta, GIS, Master Plan & Transfers",
             userLabel: "Username:",
             passLabel: "Password:",
             loginBtn: "🔐 Login",
             loginErr: "❌ Invalid username or password!",
             hintTitle: "Login Credentials:",
-            headerTitle: "🏛️ Bule Hora City Administration — Digital Cadastre & Master Plan",
+            headerTitle: "🏛️ Bule Hora City Administration — E-Carta, GIS & Master Plan",
             headerSub: "Kebeles: Ejersa Foora, Ardaa Biyyaa, Bulee Qanya, Goroo Gudinaa, Goroo Abayyii | Officer:",
             badge: "📍 BULE HORA",
             resetBtn: "🔄 Reset Sample Data",
             logoutBtn: "Logout",
-            statParcels: "Registered Parcels",
+            statParcels: "Registered E-Cartas",
             statPaid: "Tax Paid",
             statUnpaid: "Tax Unpaid",
             statPendingApprovals: "Pending Approvals",
-            lookupTitle: "👤 Officer Lookup: Master Plan Zone & Client Record",
-            lookupDesc: "Officers can filter or search parcels by Master Plan zone, Parcel ID, or owner name during client service.",
+            lookupTitle: "👤 Officer Lookup: E-Carta, Master Plan & GIS",
+            lookupDesc: "Officers can filter or search by Master Plan zone, E-Carta No., Parcel ID, or owner name during client service.",
             zf_all: "All Zones",
             zf_res: "🏠 Residential (R-1)",
             zf_ind: "🏭 Industrial (I-1)",
             zf_com: "🏢 Commercial (C-1)",
             zf_mp: "🛣️ Master Plan Line (MP)",
-            lookupLabel: "Owner Name, Kebele, or Parcel ID:",
-            lookupBtn: "🔍 Search & Inspect Master Plan Zone",
+            lookupLabel: "E-Carta No., Parcel ID, Name, or Kebele:",
+            lookupBtn: "🔍 Search & Inspect E-Carta / GIS",
             transferTitle: "🔄 Ownership Transfer (Multi-Level Leadership Approval)",
             transferDesc: "Transfers progress sequentially through Officer → Process Owner → Senior Leadership / Mayor.",
-            trParcelLabel: "Parcel ID to Transfer:",
+            trParcelLabel: "Parcel ID or E-Carta No.:",
             trOwnerLabel: "New Owner Full Name:",
             trPhoneLabel: "New Owner Phone (SMS / Alert):",
             trRefLabel: "Municipal Approval / Reference No.:",
@@ -1077,12 +1204,13 @@
             statusPendingMayor: "Awaiting Senior Leader / Mayor",
             statusApproved: "Approved & Transferred",
             statusRejected: "Rejected",
-            regTitle: "📝 New Land Registration & Owner Alert",
-            regDesc: "Register a new parcel in Bule Hora with area, kebele, Master Plan zone, and tax status and log an SMS notification.",
-            regParcelLabel: "Parcel ID:",
+            regTitle: "📝 New E-Carta Registration, GIS & SMS",
+            regDesc: "Register a new E-Carta parcel in Bule Hora with Parcel ID, E-Carta No., GIS coordinate, zone, and tax status.",
+            regParcelLabel: "Parcel ID & E-Carta Number:",
             regOwnerLabel: "Owner Full Name:",
             regPhoneLabel: "Owner Phone Number:",
             regGandaAreaLabel: "Kebele & Parcel Area (m²):",
+            regGisLabel: "GIS Coordinate (Latitude & Longitude):",
             regZoneTaxLabel: "Master Plan Zone & Tax Status:",
             zOptRes: "Residential (R-1)",
             zOptInd: "Industrial (I-1)",
@@ -1090,33 +1218,33 @@
             zOptMp: "Master Plan Corridor (MP)",
             optUnpaid: "Tax Unpaid",
             optPaid: "Tax Paid",
-            regBtn: "💾 Register & Send Owner Alert",
+            regBtn: "💾 Register E-Carta & Send Alert",
             compTitle: "📩 Log Citizen Complaint / Inquiry",
-            compDesc: "Record boundary inquiries, tax disputes, or Master Plan complaints.",
+            compDesc: "Record boundary, E-Carta, tax, or Master Plan inquiries.",
             compNameLabel: "Applicant / Client Name:",
-            compParcelGandaLabel: "Parcel ID & Kebele:",
+            compParcelGandaLabel: "Parcel / E-Carta ID & Kebele:",
             compTypeLabel: "Complaint Category:",
             compDetailLabel: "Complaint Summary:",
             compBtn: "📥 Submit Complaint",
-            mapTitle: "🗺️ International Master Plan Zoning Map",
+            mapTitle: "🗺️ Interactive E-Carta & Master Plan Zoning Map",
             legRes: "Residential (R-1)",
             legInd: "Industrial (I-1)",
             legCom: "Commercial (C-1)",
             legMp: "Master Plan (MP)",
             smsTitle: "📱 Owner Phone Notifications (SMS Log)",
             smsDesc: "Notifications sent during registration, approved transfers, and tax reminders appear here.",
-            regTableTitle: "💰 Land Registry, Master Plan Zone & Tax",
-            thParcel: "Parcel & Kebele",
+            regTableTitle: "💰 E-Carta Registry, GIS Coordinate, Master Plan & Tax",
+            thParcel: "E-Carta & Parcel",
             thOwner: "Owner & Zone",
-            thPhone: "Phone",
+            thGis: "GIS Coordinate",
             thArea: "Area",
             thTaxAmt: "Tax",
             thTaxSt: "Tax Status",
-            thAct: "Actions",
+            thAct: "Actions & E-Carta Sheet",
             compTableTitle: "📋 Citizen Complaints Log",
             thCompId: "ID",
             thCompName: "Name",
-            thCompParcel: "Parcel & Kebele",
+            thCompParcel: "E-Carta & Kebele",
             thCompType: "Type",
             thCompDesc: "Summary",
             thCompSt: "Status",
@@ -1125,7 +1253,12 @@
             markPaidBtn: "✅ Mark Paid",
             remindBtn: "⚠️ Send Tax Reminder",
             msgBtn: "📱 Send Alert",
-            smsEmpty: "Notifications sent to parcel owners will appear here."
+            certBtn: "🗺️ E-Carta / Print",
+            smsEmpty: "Notifications sent to parcel owners will appear here.",
+            certTitle: "🏛️ BULE HORA CITY ADMINISTRATION",
+            certSub: "Official E-Carta, Cadastre, GIS & Master Plan Certificate",
+            certPrintBtn: "🖨️ Print",
+            certCloseBtn: "Close"
         }
     };
 
@@ -1133,21 +1266,22 @@
     const ADMIN_PASS = "Magaalaa@2026";
 
     const DEFAULT_PARCELS = [
-        { parcelId: "BH-EF-101", owner: "Abiti Mama Shibiru", phone: "0911223344", ganda: "Ejersa Foora", area: "250 m²", zoneCode: "RESIDENTIAL", taxAmount: "1,850 ETB", taxPaid: true, status: "VALID", x: 55, y: 45, w: 135, h: 56 },
-        { parcelId: "BH-AB-102", owner: "Lule Tafara", phone: "0922334455", ganda: "Ardaa Biyyaa", area: "850 m²", zoneCode: "INDUSTRIAL", taxAmount: "5,400 ETB", taxPaid: false, status: "VALID", x: 435, y: 45, w: 145, h: 56 },
-        { parcelId: "BH-GG-104", owner: "Manayee Mamoo", phone: "0933445566", ganda: "Goroo Gudinaa", area: "320 m²", zoneCode: "COMMERCIAL", taxAmount: "2,900 ETB", taxPaid: true, status: "VALID", x: 55, y: 168, w: 135, h: 56 },
-        { parcelId: "BH-BQ-103", owner: "Galmee Sarara Master Plan", phone: "0911000000", ganda: "Bulee Qanya", area: "400 m²", zoneCode: "MASTER_PLAN", taxAmount: "3,200 ETB", taxPaid: false, status: "CONFLICT", x: 435, y: 168, w: 145, h: 56 },
-        { parcelId: "BH-GA-105", owner: "Imebet Tafara", phone: "0944556677", ganda: "Goroo Abayyii", area: "280 m²", zoneCode: "RESIDENTIAL", taxAmount: "2,050 ETB", taxPaid: false, status: "VALID", x: 215, y: 45, w: 135, h: 56 }
+        { parcelId: "BH-EF-101", cartaNo: "EC-BH-101", owner: "Abiti Mama Shibiru", phone: "0911223344", ganda: "Ejersa Foora", area: "250 m²", lat: "5.6408° N", lon: "38.2485° E", zoneCode: "RESIDENTIAL", taxAmount: "1,850 ETB", taxPaid: true, status: "VALID", x: 55, y: 45, w: 135, h: 58 },
+        { parcelId: "BH-AB-102", cartaNo: "EC-BH-102", owner: "Lule Tafara", phone: "0922334455", ganda: "Ardaa Biyyaa", area: "850 m²", lat: "5.6452° N", lon: "38.2540° E", zoneCode: "INDUSTRIAL", taxAmount: "5,400 ETB", taxPaid: false, status: "VALID", x: 435, y: 45, w: 145, h: 58 },
+        { parcelId: "BH-GG-104", cartaNo: "EC-BH-104", owner: "Manayee Mamoo", phone: "0933445566", ganda: "Goroo Gudinaa", area: "320 m²", lat: "5.6375° N", lon: "38.2412° E", zoneCode: "COMMERCIAL", taxAmount: "2,900 ETB", taxPaid: true, status: "VALID", x: 55, y: 170, w: 135, h: 58 },
+        { parcelId: "BH-BQ-103", cartaNo: "EC-BH-103", owner: "Galmee Sarara Master Plan", phone: "0911000000", ganda: "Bulee Qanya", area: "400 m²", lat: "5.6490° N", lon: "38.2601° E", zoneCode: "MASTER_PLAN", taxAmount: "3,200 ETB", taxPaid: false, status: "CONFLICT", x: 435, y: 170, w: 145, h: 58 },
+        { parcelId: "BH-GA-105", cartaNo: "EC-BH-105", owner: "Imebet Tafara", phone: "0944556677", ganda: "Goroo Abayyii", area: "280 m²", lat: "5.6331° N", lon: "38.2368° E", zoneCode: "RESIDENTIAL", taxAmount: "2,050 ETB", taxPaid: false, status: "VALID", x: 215, y: 45, w: 135, h: 58 }
     ];
 
     const DEFAULT_COMPLAINTS = [
-        { id: "IYY-101", name: "Lule Tafara", parcelInfo: "BH-AB-102 (Ardaa Biyyaa)", type: "Land Tax Inquiry", desc: "Kaffaltii gibira naannoo indastirii irratti ibsa barbaada.", state: "Open" }
+        { id: "IYY-101", name: "Lule Tafara", parcelInfo: "EC-BH-102 (Ardaa Biyyaa)", type: "E-Carta Verification", desc: "Mirkaneessa E-Carta fi gibira naannoo indastirii irratti ibsa barbaada.", state: "Open" }
     ];
 
     const DEFAULT_TRANSFERS = [
         {
             reqId: "TR-201",
             parcelId: "BH-EF-101",
+            cartaNo: "EC-BH-101",
             ganda: "Ejersa Foora",
             oldOwner: "Abiti Mama Shibiru",
             newOwner: "Nafiyad Shifera Hembe",
@@ -1162,10 +1296,11 @@
 
     let currentLang = localStorage.getItem("bh_lang") || "om";
     let activeZoneFilter = "ALL";
-    let parcels = JSON.parse(localStorage.getItem("bh_mp_parcels")) || JSON.parse(JSON.stringify(DEFAULT_PARCELS));
-    let complaints = JSON.parse(localStorage.getItem("bh_mp_complaints")) || JSON.parse(JSON.stringify(DEFAULT_COMPLAINTS));
-    let transferRequests = JSON.parse(localStorage.getItem("bh_mp_transfers")) || JSON.parse(JSON.stringify(DEFAULT_TRANSFERS));
-    let smsLogs = JSON.parse(localStorage.getItem("bh_mp_smsLogs")) || [];
+    let mapZoom = 1;
+    let parcels = JSON.parse(localStorage.getItem("bh_ecarta_parcels")) || JSON.parse(JSON.stringify(DEFAULT_PARCELS));
+    let complaints = JSON.parse(localStorage.getItem("bh_ecarta_complaints")) || JSON.parse(JSON.stringify(DEFAULT_COMPLAINTS));
+    let transferRequests = JSON.parse(localStorage.getItem("bh_ecarta_transfers")) || JSON.parse(JSON.stringify(DEFAULT_TRANSFERS));
+    let smsLogs = JSON.parse(localStorage.getItem("bh_ecarta_smsLogs")) || [];
 
     function t(key) {
         return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.om[key] || key;
@@ -1174,6 +1309,31 @@
     function zoneLabel(zoneCode) {
         const z = ZONE_META[zoneCode] || ZONE_META.RESIDENTIAL;
         return z[currentLang] || z.om;
+    }
+
+    function adjustZoom(delta) {
+        mapZoom = Math.min(1.6, Math.max(0.8, +(mapZoom + delta).toFixed(2)));
+        applyMapTransform();
+    }
+
+    function resetZoom() {
+        mapZoom = 1;
+        applyMapTransform();
+    }
+
+    function applyMapTransform() {
+        const vp = document.getElementById("mapViewport");
+        if (!vp) return;
+        const cx = 400;
+        const cy = 140;
+        vp.setAttribute("transform", `translate(${cx}, ${cy}) scale(${mapZoom}) translate(${-cx}, ${-cy})`);
+    }
+
+    function autoFillGis() {
+        const randLat = (5.6300 + Math.random() * 0.0250).toFixed(4);
+        const randLon = (38.2300 + Math.random() * 0.0350).toFixed(4);
+        document.getElementById("regLat").value = `${randLat}° N`;
+        document.getElementById("regLon").value = `${randLon}° E`;
     }
 
     function setLanguage(lang) {
@@ -1206,7 +1366,7 @@
             t_thReqChain: "thReqChain", t_thReqStatus: "thReqStatus", t_thReqAct: "thReqAct",
             t_regTitle: "regTitle", t_regDesc: "regDesc",
             t_regParcelLabel: "regParcelLabel", t_regOwnerLabel: "regOwnerLabel", t_regPhoneLabel: "regPhoneLabel",
-            t_regGandaAreaLabel: "regGandaAreaLabel", t_regZoneTaxLabel: "regZoneTaxLabel",
+            t_regGandaAreaLabel: "regGandaAreaLabel", t_regGisLabel: "regGisLabel", t_regZoneTaxLabel: "regZoneTaxLabel",
             t_zOptRes: "zOptRes", t_zOptInd: "zOptInd", t_zOptCom: "zOptCom", t_zOptMp: "zOptMp",
             t_optUnpaid: "optUnpaid", t_optPaid: "optPaid", t_regBtn: "regBtn",
             t_compTitle: "compTitle", t_compDesc: "compDesc", t_compNameLabel: "compNameLabel",
@@ -1214,11 +1374,12 @@
             t_compDetailLabel: "compDetailLabel", t_compBtn: "compBtn",
             t_mapTitle: "mapTitle", t_legRes: "legRes", t_legInd: "legInd", t_legCom: "legCom", t_legMp: "legMp",
             t_smsTitle: "smsTitle", t_smsDesc: "smsDesc", t_regTableTitle: "regTableTitle",
-            t_thParcel: "thParcel", t_thOwner: "thOwner", t_thPhone: "thPhone", t_thArea: "thArea",
+            t_thParcel: "thParcel", t_thOwner: "thOwner", t_thGis: "thGis", t_thArea: "thArea",
             t_thTaxAmt: "thTaxAmt", t_thTaxSt: "thTaxSt", t_thAct: "thAct",
             t_compTableTitle: "compTableTitle", t_thCompId: "thCompId", t_thCompName: "thCompName",
             t_thCompParcel: "thCompParcel", t_thCompType: "thCompType", t_thCompDesc: "thCompDesc",
-            t_thCompSt: "thCompSt"
+            t_thCompSt: "thCompSt",
+            certTitle: "certTitle", certSub: "certSub", certPrintBtn: "certPrintBtn", certCloseBtn: "certCloseBtn"
         };
 
         Object.entries(mapIds).forEach(([elId, key]) => {
@@ -1230,6 +1391,32 @@
         if (subEl) {
             subEl.innerHTML = `${t("headerSub")} <strong id="activeAdminLabel">${ADMIN_USER}</strong>`;
         }
+    }
+
+    function openCertificate(parcelId) {
+        const p = parcels.find(item => item.parcelId === parcelId);
+        if (!p) return;
+
+        const latestTr = transferRequests.find(tr => tr.parcelId === parcelId);
+        const approvalSummary = latestTr
+            ? `Ogeessa: ${latestTr.officerApproved ? "✔" : "⏳"} | Abbaa Adeemsaa: ${latestTr.processApproved ? "✔" : "⏳"} | Kaantiibaa/Hogganaa: ${latestTr.mayorApproved ? "✔" : "⏳"}`
+            : "E-Carta Galmaa'e & Mirkanaa'e";
+
+        document.getElementById("certBody").innerHTML = `
+            <div class="cert-box"><strong>E-Carta No.:</strong><br>${p.cartaNo}</div>
+            <div class="cert-box"><strong>Parcel ID &amp; Ganda:</strong><br>${p.parcelId} (${p.ganda})</div>
+            <div class="cert-box"><strong>Abbaa Lafaa:</strong><br>${p.owner} (${p.phone})</div>
+            <div class="cert-box"><strong>Bal'ina Lafa:</strong><br>${p.area}</div>
+            <div class="cert-box"><strong>GIS Coordinate:</strong><br>${p.lat}, ${p.lon}</div>
+            <div class="cert-box"><strong>Master Plan Zone:</strong><br>${zoneLabel(p.zoneCode)}</div>
+            <div class="cert-box"><strong>Gibira:</strong><br>${p.taxAmount} — ${p.taxPaid ? t("paidBadge") : t("unpaidBadge")}</div>
+            <div class="cert-box"><strong>Mirkaneessa:</strong><br>${approvalSummary}</div>
+        `;
+        document.getElementById("certModal").style.display = "flex";
+    }
+
+    function closeCertModal() {
+        document.getElementById("certModal").style.display = "none";
     }
 
     function filterByZone(zoneCode) {
@@ -1246,7 +1433,7 @@
             box.innerHTML = `🗺️ <strong>${t("zf_all")}</strong> — ${parcels.length}`;
         } else {
             const matching = parcels.filter(p => p.zoneCode === zoneCode);
-            const listHtml = matching.map(p => `• <b>${p.parcelId}</b> (${p.ganda} — ${p.owner}, ${p.area})`).join("<br>");
+            const listHtml = matching.map(p => `• <b>${p.cartaNo}</b> / ${p.parcelId} (${p.ganda} — ${p.lat}, ${p.lon})`).join("<br>");
             box.innerHTML = `<strong>${zoneLabel(zoneCode)}</strong> (${matching.length})<br>${listHtml || "-"}`;
         }
 
@@ -1254,10 +1441,10 @@
     }
 
     function saveState() {
-        localStorage.setItem("bh_mp_parcels", JSON.stringify(parcels));
-        localStorage.setItem("bh_mp_complaints", JSON.stringify(complaints));
-        localStorage.setItem("bh_mp_transfers", JSON.stringify(transferRequests));
-        localStorage.setItem("bh_mp_smsLogs", JSON.stringify(smsLogs));
+        localStorage.setItem("bh_ecarta_parcels", JSON.stringify(parcels));
+        localStorage.setItem("bh_ecarta_complaints", JSON.stringify(complaints));
+        localStorage.setItem("bh_ecarta_transfers", JSON.stringify(transferRequests));
+        localStorage.setItem("bh_ecarta_smsLogs", JSON.stringify(smsLogs));
     }
 
     function resetDemoData() {
@@ -1266,6 +1453,8 @@
         transferRequests = JSON.parse(JSON.stringify(DEFAULT_TRANSFERS));
         smsLogs = [];
         activeZoneFilter = "ALL";
+        mapZoom = 1;
+        applyMapTransform();
         saveState();
         renderAll();
     }
@@ -1326,6 +1515,7 @@
 
         const found = parcels.find(p =>
             p.parcelId.toLowerCase() === qLow ||
+            p.cartaNo.toLowerCase() === qLow ||
             p.owner.toLowerCase().includes(qLow) ||
             p.ganda.toLowerCase().includes(qLow)
         );
@@ -1342,33 +1532,33 @@
         const taxText = found.taxPaid ? t("paidBadge") : `${t("unpaidBadge")} (${found.taxAmount})`;
         box.className = found.status === "CONFLICT" ? "status-box res-warn" : "status-box res-ok";
         box.innerHTML = `
-            <strong>${found.parcelId}</strong> — ${found.owner} (${found.phone})<br>
+            <strong>${found.cartaNo}</strong> (${found.parcelId}) — ${found.owner} (${found.phone})<br>
             ${found.ganda} | ${found.area} | <strong>${zoneLabel(found.zoneCode)}</strong><br>
-            <strong>${taxText}</strong>
+            GIS: <code>${found.lat}, ${found.lon}</code> | <strong>${taxText}</strong>
         `;
         renderMap(found.parcelId);
     }
 
     document.getElementById("transferForm").addEventListener("submit", function(e) {
         e.preventDefault();
-        const parcelId = document.getElementById("transferParcelId").value.trim().toUpperCase();
+        const inputCode = document.getElementById("transferParcelId").value.trim().toUpperCase();
         const newOwner = document.getElementById("newOwnerName").value.trim();
         const newPhone = document.getElementById("newOwnerPhone").value.trim();
         const ref = document.getElementById("approvalRef").value.trim();
         const tBox = document.getElementById("transferBox");
 
-        const item = parcels.find(p => p.parcelId.toUpperCase() === parcelId);
+        const item = parcels.find(p => p.parcelId.toUpperCase() === inputCode || p.cartaNo.toUpperCase() === inputCode);
         tBox.style.display = "block";
 
         if (!item) {
             tBox.className = "status-box res-bad";
-            tBox.innerHTML = `❌ ${parcelId}`;
+            tBox.innerHTML = `❌ ${inputCode}`;
             return;
         }
 
         if (item.status === "CONFLICT") {
             tBox.className = "status-box res-warn";
-            tBox.innerHTML = `⚠️ ${parcelId} (${zoneLabel(item.zoneCode)})`;
+            tBox.innerHTML = `⚠️ ${item.cartaNo} (${zoneLabel(item.zoneCode)})`;
             return;
         }
 
@@ -1376,6 +1566,7 @@
         transferRequests.unshift({
             reqId,
             parcelId: item.parcelId,
+            cartaNo: item.cartaNo,
             ganda: item.ganda,
             oldOwner: item.owner,
             newOwner,
@@ -1389,7 +1580,7 @@
 
         saveState();
         tBox.className = "status-box res-info";
-        tBox.innerHTML = `📤 <strong>${reqId}</strong> (${item.parcelId}): ${t("statusPendingOfficer")}`;
+        tBox.innerHTML = `📤 <strong>${reqId}</strong> (${item.cartaNo} / ${item.parcelId}): ${t("statusPendingOfficer")}`;
 
         renderAll(item.parcelId);
         this.reset();
@@ -1410,7 +1601,7 @@
                 parcel.owner = req.newOwner;
                 parcel.phone = req.newPhone;
             }
-            const smsText = `Bule Hora (${req.ganda}): ${req.parcelId} ${req.oldOwner} -> ${req.newOwner} [${req.ref}]`;
+            const smsText = `Bule Hora (${req.ganda}): ${req.cartaNo} [${req.parcelId}] ${req.oldOwner} -> ${req.newOwner} [${req.ref}]`;
             dispatchPhoneAlert(req.newPhone, smsText, "APPROVED");
         }
 
@@ -1466,7 +1657,7 @@
             return `
                 <tr>
                     <td><strong>${r.reqId}</strong><br><small style="color:#64748b;">${r.ref}</small></td>
-                    <td><strong>${r.parcelId}</strong><br><small style="color:#64748b;">${r.ganda}</small></td>
+                    <td><strong>${r.cartaNo}</strong> (${r.parcelId})<br><small style="color:#64748b;">${r.ganda}</small></td>
                     <td>${r.oldOwner} → <strong>${r.newOwner}</strong><br><small style="color:#64748b;">${r.newPhone}</small></td>
                     <td><div class="chain-steps">${s1}${s2}${s3}</div></td>
                     <td>${statePill}</td>
@@ -1479,10 +1670,13 @@
     document.getElementById("registerLandForm").addEventListener("submit", function(e) {
         e.preventDefault();
         const parcelId = document.getElementById("regParcelId").value.trim().toUpperCase();
+        const cartaNo = document.getElementById("regCartaNo").value.trim().toUpperCase();
         const owner = document.getElementById("regOwnerName").value.trim();
         const phone = document.getElementById("regOwnerPhone").value.trim();
         const ganda = document.getElementById("regGanda").value;
         const area = document.getElementById("regArea").value.trim();
+        const lat = document.getElementById("regLat").value.trim();
+        const lon = document.getElementById("regLon").value.trim();
         const zoneCode = document.getElementById("regZoneCode").value;
         const taxPaid = document.getElementById("regTaxStatus").value === "PAID";
 
@@ -1490,27 +1684,28 @@
         const idx = parcels.filter(p => p.zoneCode === zoneCode).length;
 
         parcels.push({
-            parcelId, owner, phone, ganda, area, zoneCode,
+            parcelId, cartaNo, owner, phone, ganda, area, lat, lon, zoneCode,
             taxAmount: "2,100 ETB",
             taxPaid,
             status: zoneCode === "MASTER_PLAN" ? "CONFLICT" : "VALID",
             x: zMeta.x + (idx % 2) * 105,
-            y: zMeta.y + 12 + Math.floor(idx / 2) * 32,
-            w: 98,
-            h: 28
+            y: zMeta.y + 14 + Math.floor(idx / 2) * 34,
+            w: 100,
+            h: 30
         });
 
         saveState();
-        const smsText = `Bule Hora (${ganda}): ${parcelId} [${zMeta.code}] ${area} - ${owner}`;
-        dispatchPhoneAlert(phone, smsText, "SMS");
+        const smsText = `Bule Hora (${ganda}): ${cartaNo} [${parcelId}] ${lat}, ${lon} - ${owner}`;
+        dispatchPhoneAlert(phone, smsText, "E-CARTA");
 
         const rBox = document.getElementById("regStatusBox");
         rBox.style.display = "block";
         rBox.className = "status-box res-ok";
-        rBox.innerHTML = `✅ <strong>${parcelId}</strong> (${zoneLabel(zoneCode)})<br><small>${smsText}</small>`;
+        rBox.innerHTML = `✅ <strong>${cartaNo}</strong> (${parcelId})<br><small>${smsText}</small>`;
 
         renderAll(parcelId);
         this.reset();
+        autoFillGis();
     });
 
     function markTaxPaid(parcelId) {
@@ -1518,14 +1713,14 @@
         if (!item) return;
         item.taxPaid = true;
         saveState();
-        dispatchPhoneAlert(item.phone, `Bule Hora (${item.ganda}): ${parcelId} (${item.taxAmount}) - ${t("paidBadge")}`, "TAX");
+        dispatchPhoneAlert(item.phone, `Bule Hora (${item.ganda}): ${item.cartaNo} (${item.taxAmount}) - ${t("paidBadge")}`, "TAX");
         renderAll(parcelId);
     }
 
     function sendTaxReminder(parcelId) {
         const item = parcels.find(p => p.parcelId === parcelId);
         if (!item) return;
-        dispatchPhoneAlert(item.phone, `Bule Hora (${item.ganda}): ${parcelId} (${item.taxAmount}) - ${t("unpaidBadge")}`, "REMINDER");
+        dispatchPhoneAlert(item.phone, `Bule Hora (${item.ganda}): ${item.cartaNo} (${item.taxAmount}) - ${t("unpaidBadge")}`, "REMINDER");
     }
 
     document.getElementById("complaintForm").addEventListener("submit", function(e) {
@@ -1565,11 +1760,11 @@
                 <rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="5"
                       fill="${z.fill}" stroke="${active ? '#061529' : z.stroke}"
                       stroke-width="${active ? '3' : '1.8'}" />
-                <text x="${p.x + 6}" y="${p.y + 13}" font-size="10" font-weight="bold" fill="#0f172a">${p.parcelId} (${z.code})</text>
-                <text x="${p.x + 6}" y="${p.y + 24}" font-size="8.5" fill="#334155">${p.area} • ${p.ganda}</text>
+                <text x="${p.x + 6}" y="${p.y + 13}" font-size="9.5" font-weight="bold" fill="#0f172a">${p.cartaNo} (${z.code})</text>
+                <text x="${p.x + 6}" y="${p.y + 24}" font-size="8" fill="#334155">${p.parcelId} • ${p.area}</text>
             `;
             g.style.cursor = "pointer";
-            g.onclick = () => runClientLookup(p.parcelId);
+            g.onclick = () => runClientLookup(p.cartaNo);
             shapes.appendChild(g);
         });
     }
@@ -1591,22 +1786,25 @@
                 ? `<span class="pill p-ok">${t("paidBadge")}</span>`
                 : `<span class="pill p-bad">${t("unpaidBadge")}</span>`;
 
-            const actions = p.taxPaid
+            const taxAction = p.taxPaid
                 ? `<button type="button" class="btn-sms" onclick="sendTaxReminder('${p.parcelId}')">${t("msgBtn")}</button>`
-                : `<div class="action-btns">
-                     <button type="button" class="btn-green" onclick="markTaxPaid('${p.parcelId}')">${t("markPaidBtn")}</button>
-                     <button type="button" class="btn-sms" onclick="sendTaxReminder('${p.parcelId}')">${t("remindBtn")}</button>
-                   </div>`;
+                : `<button type="button" class="btn-green" onclick="markTaxPaid('${p.parcelId}')">${t("markPaidBtn")}</button>
+                   <button type="button" class="btn-sms" onclick="sendTaxReminder('${p.parcelId}')">${t("remindBtn")}</button>`;
 
             return `
                 <tr>
-                    <td><strong>${p.parcelId}</strong><br><small style="color:#64748b;">${p.ganda}</small></td>
+                    <td><strong>${p.cartaNo}</strong><br><small style="color:#64748b;">${p.parcelId} • ${p.ganda}</small></td>
                     <td><strong>${p.owner}</strong><br><small style="color:#0f172a; font-weight:600;">${zoneLabel(p.zoneCode)}</small></td>
-                    <td>${p.phone}</td>
+                    <td><code>${p.lat}</code><br><code>${p.lon}</code></td>
                     <td>${p.area}</td>
                     <td><strong>${p.taxAmount}</strong></td>
                     <td>${taxBadge}</td>
-                    <td>${actions}</td>
+                    <td>
+                        <div class="action-btns">
+                            ${taxAction}
+                            <button type="button" class="btn-cert" onclick="openCertificate('${p.parcelId}')">${t("certBtn")}</button>
+                        </div>
+                    </td>
                 </tr>
             `;
         }).join("");
