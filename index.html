@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Municipal Land & Cadastre System — Master Edition</title>
+    <title>Sample Magaalotaa — Sirna Kaadaastiraa, Master Plan & Bulchiinsa Lafaa</title>
     <style>
         :root {
             --navy: #0b2545;
@@ -52,7 +52,7 @@
         .login-card {
             background: #fff;
             width: 100%;
-            max-width: 430px;
+            max-width: 440px;
             padding: 30px;
             border-radius: 14px;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
@@ -62,7 +62,7 @@
         .login-card h2 {
             margin: 0 0 6px;
             color: var(--navy);
-            font-size: 21px;
+            font-size: 20px;
             text-align: center;
         }
 
@@ -107,7 +107,7 @@
         }
 
         .header-inner {
-            max-width: 1220px;
+            max-width: 1240px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -116,7 +116,7 @@
             gap: 12px;
         }
 
-        header h1 { margin: 0; font-size: 20px; }
+        header h1 { margin: 0; font-size: 19px; }
         header p { margin: 4px 0 0; font-size: 12px; color: #cbd5e1; }
 
         .header-actions {
@@ -124,6 +124,43 @@
             align-items: center;
             gap: 8px;
             flex-wrap: wrap;
+        }
+
+        .city-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #dbe2ea;
+            padding: 10px 16px;
+        }
+
+        .city-bar-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .city-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .city-btn {
+            width: auto;
+            padding: 7px 13px;
+            font-size: 12.5px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: var(--navy);
+        }
+
+        .city-btn.active {
+            background: var(--navy);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(11, 37, 69, 0.25);
         }
 
         .badge-admin {
@@ -159,8 +196,8 @@
         .btn-logout:hover { background: #b91c1c; }
 
         .container {
-            max-width: 1220px;
-            margin: 22px auto;
+            max-width: 1240px;
+            margin: 20px auto;
             padding: 0 16px 48px;
         }
 
@@ -394,694 +431,12 @@
 </head>
 <body>
 
-<!-- 1. SEENSAA BULCHIINSA MAGAALAA -->
+<!-- 1. LOGIN SCREEN -->
 <div id="loginScreen">
     <div class="login-card">
         <h2>🏛️ Sirna Kaadaastiraa &amp; Bulchiinsa Lafaa</h2>
-        <p>Portal Bulchiinsa Magaalaa — Auto-Save &amp; Master Plan Edition</p>
+        <p>Sample Magaalotaa — Bulee Horaa, Yaa'abello, Finfinnee &amp; Hawaasaa</p>
 
         <form id="loginForm">
             <div class="form-group">
-                <label>Maqaa Fayyadamaa (Username):</label>
-                <input type="text" id="loginUser" value="admin_magaalaa" required>
-            </div>
-
-            <div class="form-group">
-                <label>Jecha Darbii (Password):</label>
-                <input type="password" id="loginPass" value="Magaalaa@2026" required>
-            </div>
-
-            <button type="submit" class="btn-navy">🔐 Seensa Mirkaneessi (Login)</button>
-        </form>
-
-        <div id="loginError">❌ Maqaan fayyadamaa ykn jechi darbii sirrii miti!</div>
-
-        <div class="login-hint">
-            <strong>Ragaa Seensaa Kee:</strong><br>
-            Username: <code>admin_magaalaa</code><br>
-            Password: <code>Magaalaa@2026</code>
-        </div>
-    </div>
-</div>
-
-<!-- 2. PORTAL GUUTUU -->
-<div id="adminPortal">
-    <header>
-        <div class="header-inner">
-            <div>
-                <h1>🏛️ Sirna Kaadaastiraa, Master Plan, Gibira &amp; Iyyannoo Lafaa</h1>
-                <p>Ogeessa: <strong id="activeAdminLabel">admin_magaalaa</strong> | Daataan Kee Ofumaan Kuufama (Auto-Saved)</p>
-            </div>
-            <div class="header-actions">
-                <span class="badge-admin">💾 AUTO-SAVE ACTIVE</span>
-                <button type="button" class="btn-reset" onclick="resetDemoData()">🔄 Daataa Jalqabaatti Deebisi</button>
-                <button type="button" class="btn-logout" onclick="logoutAdmin()">Ba'i (Logout)</button>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- CUUNFAA LAKKOOFSA -->
-        <div class="stats-row">
-            <div class="stat-box">
-                <div class="stat-label">Paarsilii Galmaa'e</div>
-                <div class="stat-val" id="statTotalParcels">0</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Gibira Kaffalame</div>
-                <div class="stat-val" id="statPaidTax" style="color:#15803d;">0</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Gibira Hin Kaffalamne</div>
-                <div class="stat-val" id="statUnpaidTax" style="color:#b91c1c;">0</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Iyyannoo / Komii</div>
-                <div class="stat-val" id="statComplaints" style="color:#b45309;">0</div>
-            </div>
-        </div>
-
-        <!-- KEESSUMMEESSA MAAMILA + DABARSA MAQAA -->
-        <div class="grid">
-            <div class="card">
-                <h2>👤 Keessummeessa Maamila: Ragaa Abbaa Lafaa &amp; Gibira Ilaaluu</h2>
-                <p style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Maqaa abbaa lafaa ykn lakkoofsa galmee lafaa (Parcel ID) galchuun bal'ina (m²), Master Plan, fi gibira battalumatti ilaali.
-                </p>
-
-                <form id="clientLookupForm">
-                    <div class="form-group">
-                        <label>Maqaa Abbaa Lafaa ykn Lakkoofsa Galmee Lafaa (Parcel ID):</label>
-                        <input type="text" id="lookupInput" placeholder="Fkn: Abiti Mama ykn MGL-01-101" required>
-                    </div>
-                    <button type="submit" class="btn-navy">🔍 Ragaa Maamila &amp; Gibira Sakatta'i</button>
-                </form>
-
-                <div class="quick-bar">
-                    <button type="button" class="chip" onclick="runClientLookup('MGL-01-101')">✅ MGL-01-101 (Gibira OK)</button>
-                    <button type="button" class="chip" onclick="runClientLookup('MGL-03-309')">⏳ MGL-03-309 (Gibira Hin Kaffalamne)</button>
-                    <button type="button" class="chip" onclick="runClientLookup('MGL-02-204')">⚠️ MGL-02-204 (Master Plan Conflict)</button>
-                    <button type="button" class="chip" onclick="runClientLookup('MGL-99-888')">❌ MGL-99-888 (Kaartaa Soba)</button>
-                </div>
-
-                <div id="lookupResultBox" class="status-box"></div>
-            </div>
-
-            <div class="card">
-                <h2>🔄 Eeyyama Bulchiinsaatiin Gurgurtaa / Jijjiirraa Maqaa</h2>
-                <p style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Yeroo lafti gurguramu ykn maqaan jijjiiramu, eeyyama bulchiinsaatiin mirkaneessee maqaa haaraa galmeessa; bilbila irrattis ergaa erga.
-                </p>
-
-                <form id="transferForm">
-                    <div class="form-group">
-                        <label>Paarsilii ID Gurguramu / Maqaan Jijjiiramu:</label>
-                        <input type="text" id="transferParcelId" placeholder="Fkn: MGL-01-101" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Maqaa Abbaa Lafaa Haaraa:</label>
-                        <input type="text" id="newOwnerName" placeholder="Fkn: Nafiyad Shifera Hembe" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Bilbila Abbaa Lafaa Haaraa (SMS / Alert):</label>
-                        <input type="tel" id="newOwnerPhone" placeholder="Fkn: 0911223344" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Lakk. Eeyyama Bulchiinsa Magaalaa:</label>
-                        <input type="text" id="approvalRef" placeholder="Fkn: BM-EYY-2026-045" required>
-                    </div>
-
-                    <button type="submit" class="btn-teal">✍️ Eeyyama Bulchiinsaan Maqaa Jijjiiri</button>
-                </form>
-
-                <div id="transferBox" class="status-box"></div>
-            </div>
-        </div>
-
-        <!-- GALMEE LAFA HAARAA + IYYANNOO -->
-        <div class="grid">
-            <div class="card">
-                <h2>📝 Galmee Lafa Haaraa &amp; Ergii Bilbila Abbaa Lafaa</h2>
-                <p style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Lafti yeroo galmaa'u, bal'ina (m²), aanaa, maqaa itti galmaa'e, fi haala gibiraa wajjin bilbila abbaa lafaa irratti ergaan gabaabaa ni ergama.
-                </p>
-
-                <form id="registerLandForm">
-                    <div class="form-group">
-                        <label>Lakkoofsa Paarsilii (Parcel ID):</label>
-                        <input type="text" id="regParcelId" placeholder="Fkn: MGL-01-210" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Maqaa Guutuu Abbaa Lafaa:</label>
-                        <input type="text" id="regOwnerName" placeholder="Fkn: Abiti Mama Shibiru" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Lakkoofsa Bilbilaa Abbaa Lafaa:</label>
-                        <input type="tel" id="regOwnerPhone" placeholder="Fkn: 0911001122" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Aanaa / Ganda &amp; Bal'ina Lafa (m²):</label>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                            <select id="regAanaa">
-                                <option value="Aanaa 01 - Giddugala">Aanaa 01 - Giddugala</option>
-                                <option value="Aanaa 02 - Lixaa">Aanaa 02 - Lixaa</option>
-                                <option value="Aanaa 03 - Bahaa">Aanaa 03 - Bahaa</option>
-                            </select>
-                            <input type="text" id="regArea" placeholder="Fkn: 250 m²" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Master Plan Zone &amp; Haala Gibira Bara Kanaa:</label>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                            <select id="regZone">
-                                <option value="Mana Jireenyaa (Residential)">Mana Jireenyaa</option>
-                                <option value="Daldalaa & Tajaajila (Commercial)">Daldalaa &amp; Tajaajila</option>
-                                <option value="Daandii & Misooma (Master Plan)">Master Plan Zone</option>
-                            </select>
-                            <select id="regTaxStatus">
-                                <option value="UNPAID">Gibira Bara Kanaa Hin Kaffalle</option>
-                                <option value="PAID">Gibira Bara Kanaa Kaffalameera</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-gold">💾 Galmeessi &amp; Bilbila Abbaa Lafaa Irratti Ergi</button>
-                </form>
-
-                <div id="regStatusBox" class="status-box"></div>
-            </div>
-
-            <div class="card">
-                <h2>📩 Iyyannoo / Komii Maamilaa Galchuu</h2>
-                <p style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Maamilli iyyannoo daangaa, komii gibiraa, ykn gaaffii mirkaneessa lafaa yoo dhiyeesse asirratti galmeessi.
-                </p>
-
-                <form id="complaintForm">
-                    <div class="form-group">
-                        <label>Maqaa Iyyataa / Maamila:</label>
-                        <input type="text" id="compName" placeholder="Fkn: Lule Tafara" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Paarsilii ID (Yoo Jiraate):</label>
-                        <input type="text" id="compParcel" placeholder="Fkn: MGL-03-309">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Gosa Iyyannoo:</label>
-                        <select id="compType">
-                            <option value="Iyyannoo Mirkaneessa Daangaa">Iyyannoo Mirkaneessa Daangaa</option>
-                            <option value="Gaaffii / Komii Gibira Lafaa">Gaaffii / Komii Gibira Lafaa</option>
-                            <option value="Iyyannoo Dabarsa Abbummaa">Iyyannoo Dabarsa Abbummaa</option>
-                            <option value="Komii Kaartaa / Master Plan">Komii Kaartaa / Master Plan</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Ibsa Iyyannoo Gabaabaa:</label>
-                        <textarea id="compDesc" placeholder="Ibsa iyyannoo maamilichaa asitti barreessi..." required></textarea>
-                    </div>
-
-                    <button type="submit" class="btn-navy">📥 Iyyannoo Galmeessi</button>
-                </form>
-
-                <div id="compBox" class="status-box"></div>
-            </div>
-        </div>
-
-        <!-- KAARTAA MASTER PLAN + SMS FEED -->
-        <div class="grid">
-            <div class="card">
-                <div class="map-top">
-                    <h2 style="border:none; margin:0; padding:0;">🗺️ Kaartaa Master Plan &amp; Daangaa Paarsilii</h2>
-                    <div class="legend">
-                        <span class="l-ok">Gibira OK</span>
-                        <span class="l-warn">Master Plan Conflict</span>
-                        <span class="l-bad">Soba / Hin Jiru</span>
-                        <span class="l-mp">Master Plan</span>
-                    </div>
-                </div>
-                <svg id="adminMap" viewBox="0 0 800 250">
-                    <rect x="20" y="16" width="760" height="218" rx="8" fill="none" stroke="#134074" stroke-width="2" stroke-dasharray="8,6"/>
-                    <text x="34" y="34" font-size="11.5" fill="#134074" font-weight="bold">MASTER PLAN LAYER — Daangaa Aanaa, Daandii &amp; Qoodinsa Lafa Magaalaa</text>
-                    <line x1="20" y1="125" x2="780" y2="125" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,4"/>
-                    <line x1="400" y1="16" x2="400" y2="234" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,4"/>
-                    <g id="adminMapShapes"></g>
-                </svg>
-            </div>
-
-            <div class="card">
-                <h2>📱 Ergaa Gabaabaa Bilbila Abbaa Lafaa Irratti Ergame (SMS Log)</h2>
-                <p style="font-size:13px; color:var(--muted); margin-top:0;">
-                    Ergaan yeroo galmee lafaa, dabarsa maqaa, fi yaadachiisa gibiraa bilbila abbaa lafaa irratti ergame asitti mul'ata.
-                </p>
-                <div id="smsFeed" class="sms-feed"></div>
-            </div>
-        </div>
-
-        <!-- GABATEE GALMEE LAFAA & GIBIRA -->
-        <div class="card" style="margin-bottom:20px;">
-            <h2>💰 Galmee Lafaa &amp; Gibira Mootummaa (Kaffalame vs Hin Kaffalamne)</h2>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Paarsilii ID</th>
-                            <th>Abbaa Lafaa</th>
-                            <th>Bilbila</th>
-                            <th>Bal'ina</th>
-                            <th>Gibira (ETB)</th>
-                            <th>Haala Gibiraa</th>
-                            <th>Tarkaanfii</th>
-                        </tr>
-                    </thead>
-                    <tbody id="registryTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TARREE IYYANNOO -->
-        <div class="card">
-            <h2>📋 Tarree Iyyannoo / Komii Maamilaa</h2>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Lakk. Iyyannoo</th>
-                            <th>Maqaa Maamilaa</th>
-                            <th>Paarsilii</th>
-                            <th>Gosa</th>
-                            <th>Ibsa</th>
-                            <th>Haala</th>
-                        </tr>
-                    </thead>
-                    <tbody id="complaintsTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const BOT_TOKEN = "GARTI_BOT_TOKEN_KEE_AS_ITTI_GALCHI";
-    const CHAT_ID = "CHAT_ID_KEE_AS_ITTI_GALCHI";
-
-    const ADMIN_USER = "admin_magaalaa";
-    const ADMIN_PASS = "Magaalaa@2026";
-
-    const DEFAULT_PARCELS = [
-        {
-            parcelId: "MGL-01-101",
-            owner: "Abiti Mama Shibiru",
-            phone: "0911223344",
-            aanaa: "Aanaa 01 - Giddugala",
-            area: "250 m²",
-            zone: "Mana Jireenyaa (Residential)",
-            taxAmount: "1,850 ETB",
-            taxPaid: true,
-            status: "VALID",
-            x: 55, y: 50, w: 135, h: 52
-        },
-        {
-            parcelId: "MGL-02-204",
-            owner: "Galmee Walitti Bu'aa",
-            phone: "0911000000",
-            aanaa: "Aanaa 02 - Lixaa",
-            area: "400 m²",
-            zone: "Daandii & Misooma (Master Plan)",
-            taxAmount: "3,200 ETB",
-            taxPaid: false,
-            status: "CONFLICT",
-            x: 435, y: 50, w: 145, h: 52
-        },
-        {
-            parcelId: "MGL-03-309",
-            owner: "Lule Tafara",
-            phone: "0922334455",
-            aanaa: "Aanaa 03 - Bahaa",
-            area: "320 m²",
-            zone: "Daldalaa & Tajaajila (Commercial)",
-            taxAmount: "2,600 ETB",
-            taxPaid: false,
-            status: "VALID",
-            x: 55, y: 145, w: 135, h: 52
-        }
-    ];
-
-    const DEFAULT_COMPLAINTS = [
-        {
-            id: "IYY-101",
-            name: "Lule Tafara",
-            parcelId: "MGL-03-309",
-            type: "Gaaffii / Komii Gibira Lafaa",
-            desc: "Kaffaltii gibira bara kanaa irratti ibsa mirkaneessaa barbaada.",
-            state: "Hordoffii Irra Jira"
-        }
-    ];
-
-    // LOCALSTORAGE AUTO-SAVE LOAD
-    let parcels = JSON.parse(localStorage.getItem("mgl_parcels")) || JSON.parse(JSON.stringify(DEFAULT_PARCELS));
-    let complaints = JSON.parse(localStorage.getItem("mgl_complaints")) || JSON.parse(JSON.stringify(DEFAULT_COMPLAINTS));
-    let smsLogs = JSON.parse(localStorage.getItem("mgl_smsLogs")) || [];
-
-    function saveState() {
-        localStorage.setItem("mgl_parcels", JSON.stringify(parcels));
-        localStorage.setItem("mgl_complaints", JSON.stringify(complaints));
-        localStorage.setItem("mgl_smsLogs", JSON.stringify(smsLogs));
-    }
-
-    function resetDemoData() {
-        if (!confirm("Daataa haaraa galchite haquudhaan gara daataa jalqabaatti deebisuu barbaaddaa?")) return;
-        parcels = JSON.parse(JSON.stringify(DEFAULT_PARCELS));
-        complaints = JSON.parse(JSON.stringify(DEFAULT_COMPLAINTS));
-        smsLogs = [];
-        saveState();
-        renderAll();
-        alert("Daataan gara bifa jalqabaatti deebi'eera!");
-    }
-
-    // LOGIN
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const u = document.getElementById("loginUser").value.trim();
-        const p = document.getElementById("loginPass").value;
-        const err = document.getElementById("loginError");
-
-        if (u === ADMIN_USER && p === ADMIN_PASS) {
-            err.style.display = "none";
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("adminPortal").style.display = "block";
-            document.getElementById("activeAdminLabel").textContent = u;
-            renderAll();
-        } else {
-            err.style.display = "block";
-        }
-    });
-
-    function logoutAdmin() {
-        document.getElementById("adminPortal").style.display = "none";
-        document.getElementById("loginScreen").style.display = "flex";
-    }
-
-    // SMS DISPATCHER
-    function dispatchPhoneAlert(phone, messageText, tag) {
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        smsLogs.unshift({ phone, message: messageText, tag, time: now });
-        saveState();
-        renderSmsFeed();
-        sendTelegramAlert(`SMS -> ${phone} (${tag})`, messageText);
-    }
-
-    function renderSmsFeed() {
-        const feed = document.getElementById("smsFeed");
-        if (smsLogs.length === 0) {
-            feed.innerHTML = `<div class="sms-item">Ergaan gabaabaa bilbila abbaa lafaa irratti yeroo ergamu asirratti mul'ata.</div>`;
-            return;
-        }
-        feed.innerHTML = smsLogs.map(s => `
-            <div class="sms-item">
-                <strong>📱 Gara Bilbilaa: ${s.phone}</strong> <span class="pill p-ok">${s.tag}</span> <span style="float:right; color:#64748b;">${s.time}</span><br>
-                <span>${s.message}</span>
-            </div>
-        `).join("");
-    }
-
-    // CLIENT LOOKUP
-    document.getElementById("clientLookupForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        runClientLookup(document.getElementById("lookupInput").value.trim());
-    });
-
-    function runClientLookup(query) {
-        document.getElementById("lookupInput").value = query;
-        const box = document.getElementById("lookupResultBox");
-        const qLow = query.toLowerCase();
-
-        const found = parcels.find(p =>
-            p.parcelId.toLowerCase() === qLow || p.owner.toLowerCase().includes(qLow)
-        );
-
-        box.style.display = "block";
-
-        if (!found) {
-            box.className = "status-box res-bad";
-            box.innerHTML = `
-                ❌ <strong>RAGAA MAAMILAA HIN ARGAMNE (KAARTAA SOBA / HIN GALMOOFNE)</strong><br>
-                Gaaffiin "<b>${query}</b>" galmee lafa bulchiinsa magaalaa keessatti hin jiru.
-            `;
-            renderMap("");
-            return;
-        }
-
-        const taxLabel = found.taxPaid
-            ? `<span style="color:#15803d; font-weight:700;">✅ Kaffalameera (Paid)</span>`
-            : `<span style="color:#b91c1c; font-weight:700;">❌ Hin Kaffalamne — Kaffaltii Gibiraa (${found.taxAmount}) Barbaada</span>`;
-
-        box.className = found.status === "CONFLICT" ? "status-box res-warn" : "status-box res-ok";
-        box.innerHTML = `
-            <strong>${found.status === "CONFLICT" ? "⚠️ AKEEKACHIISA MASTER PLAN" : "✅ RAGAA ABBA LAFAA MIRKANAA'E"}</strong><br>
-            • <b>Abbaa Lafaa:</b> ${found.owner} (${found.phone})<br>
-            • <b>Paarsilii ID:</b> ${found.parcelId} | <b>Aanaa:</b> ${found.aanaa}<br>
-            • <b>Bal'ina Lafa:</b> ${found.area} | <b>Zone:</b> ${found.zone}<br>
-            • <b>Haala Gibira Mootummaa:</b> ${taxLabel}
-        `;
-        renderMap(found.parcelId);
-    }
-
-    // NEW LAND REGISTRATION
-    document.getElementById("registerLandForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const parcelId = document.getElementById("regParcelId").value.trim().toUpperCase();
-        const owner = document.getElementById("regOwnerName").value.trim();
-        const phone = document.getElementById("regOwnerPhone").value.trim();
-        const aanaa = document.getElementById("regAanaa").value;
-        const area = document.getElementById("regArea").value.trim();
-        const zone = document.getElementById("regZone").value;
-        const taxPaid = document.getElementById("regTaxStatus").value === "PAID";
-
-        const idx = parcels.length;
-        const col = idx % 3;
-        const row = Math.floor(idx / 3) % 2;
-
-        parcels.push({
-            parcelId,
-            owner,
-            phone,
-            aanaa,
-            area,
-            zone,
-            taxAmount: "2,100 ETB",
-            taxPaid,
-            status: zone.includes("Master Plan") ? "CONFLICT" : "VALID",
-            x: 55 + col * 230,
-            y: 50 + row * 95,
-            w: 135,
-            h: 52
-        });
-
-        saveState();
-
-        const taxMsg = taxPaid
-            ? "Gibirri bara kanaa kaffalameera."
-            : "Gibirri bara kanaa hin kaffalamne, maaloo kafalaa!";
-
-        const smsText = `Bulchiinsa Magaalaa: Lafa bal'ina ${area} (${parcelId}, ${aanaa}) maqaa ${owner} tiin galmaa'eera. ${taxMsg}`;
-        dispatchPhoneAlert(phone, smsText, "GALMEE LAFAA");
-
-        const rBox = document.getElementById("regStatusBox");
-        rBox.style.display = "block";
-        rBox.className = "status-box res-ok";
-        rBox.innerHTML = `
-            ✅ <strong>Lafa Galmaa'eera &amp; Ergaan Bilbila Abbaa Lafaa (${phone}) Irratti Ergameera!</strong><br>
-            <small>${smsText}</small>
-        `;
-
-        renderAll(parcelId);
-        this.reset();
-    });
-
-    // TRANSFER OWNERSHIP
-    document.getElementById("transferForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const parcelId = document.getElementById("transferParcelId").value.trim().toUpperCase();
-        const newOwner = document.getElementById("newOwnerName").value.trim();
-        const newPhone = document.getElementById("newOwnerPhone").value.trim();
-        const ref = document.getElementById("approvalRef").value.trim();
-        const tBox = document.getElementById("transferBox");
-
-        const item = parcels.find(p => p.parcelId.toUpperCase() === parcelId);
-        tBox.style.display = "block";
-
-        if (!item) {
-            tBox.className = "status-box res-bad";
-            tBox.innerHTML = `❌ Paarsiliin <b>${parcelId}</b> galmee keessa hin jiru.`;
-            return;
-        }
-
-        if (item.status === "CONFLICT") {
-            tBox.className = "status-box res-warn";
-            tBox.innerHTML = `⚠️ Paarsiliin <b>${parcelId}</b> walitti bu'iinsa Master Plan qaba; osoo hin sirraa'in jijjiirraan maqaa hin mirkanaa'u.`;
-            return;
-        }
-
-        const oldOwner = item.owner;
-        item.owner = newOwner;
-        item.phone = newPhone;
-        saveState();
-
-        const smsText = `Bulchiinsa Magaalaa: Abbummaan lafaa (${parcelId}, ${item.area}) eeyyama (${ref}) tiin gara ${newOwner} tti jijjiirameera.`;
-        dispatchPhoneAlert(newPhone, smsText, "DABARSA MAQAA");
-
-        tBox.className = "status-box res-ok";
-        tBox.innerHTML = `
-            ✅ <strong>Eeyyama Bulchiinsaan Jijjiirameera!</strong><br>
-            Duraanii: <b>${oldOwner}</b> → Haaraa: <b>${newOwner}</b> (Ref: ${ref}). Ergaan bilbila ${newPhone} irratti ergameera.
-        `;
-
-        renderAll(parcelId);
-        this.reset();
-    });
-
-    // TAX ACTIONS
-    function markTaxPaid(parcelId) {
-        const item = parcels.find(p => p.parcelId === parcelId);
-        if (!item) return;
-        item.taxPaid = true;
-        saveState();
-        dispatchPhoneAlert(
-            item.phone,
-            `Bulchiinsa Magaalaa: Kaffaltiin gibira lafaa (${item.parcelId}, ${item.taxAmount}) maqaa ${item.owner} tiin mirkanaa'eera. Galatoomaa!`,
-            "GIBIRA KAFFALAME"
-        );
-        renderAll(parcelId);
-    }
-
-    function sendTaxReminder(parcelId) {
-        const item = parcels.find(p => p.parcelId === parcelId);
-        if (!item) return;
-        const msg = `Bulchiinsa Magaalaa: Yaadachiisa — Lafa keessan (${item.parcelId}, ${item.area}) maqaa ${item.owner} tiin galmaa'e irratti gibirri bara kanaa (${item.taxAmount}) hin kaffalamne; maaloo kafalaa!`;
-        dispatchPhoneAlert(item.phone, msg, "YAADACHIISAA GIBIRA");
-        alert(`Yaadachiisni gibiraa gara bilbila ${item.phone} irratti ergameera!`);
-    }
-
-    // COMPLAINTS
-    document.getElementById("complaintForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const name = document.getElementById("compName").value.trim();
-        const parcelId = document.getElementById("compParcel").value.trim().toUpperCase() || "Hin ibsamne";
-        const type = document.getElementById("compType").value;
-        const desc = document.getElementById("compDesc").value.trim();
-
-        const compId = "IYY-" + (100 + complaints.length + 1);
-        complaints.unshift({ id: compId, name, parcelId, type, desc, state: "Galmaa'eera" });
-        saveState();
-
-        const cBox = document.getElementById("compBox");
-        cBox.style.display = "block";
-        cBox.className = "status-box res-info";
-        cBox.innerHTML = `📩 Iyyannoon maqaa <b>${name}</b> (Lakk: <b>${compId}</b>) galmaa'eera.`;
-
-        sendTelegramAlert(`COMPLAINT ${compId}: ${name} (${parcelId})`, `${type} - ${desc}`);
-        renderAll();
-        this.reset();
-    });
-
-    // RENDER MAP & TABLES
-    function renderMap(selectedId = "") {
-        const shapes = document.getElementById("adminMapShapes");
-        shapes.innerHTML = "";
-
-        parcels.forEach(p => {
-            let fill = p.taxPaid ? "#bbf7d0" : "#e0f2fe";
-            let stroke = p.taxPaid ? "#15803d" : "#0284c7";
-            if (p.status === "CONFLICT") {
-                fill = "#fde68a";
-                stroke = "#d97706";
-            }
-
-            const active = selectedId.toUpperCase() === p.parcelId.toUpperCase();
-            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            g.innerHTML = `
-                <rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="6"
-                      fill="${fill}" stroke="${active ? '#061529' : stroke}"
-                      stroke-width="${active ? '3.5' : '2'}" />
-                <text x="${p.x + 8}" y="${p.y + 20}" font-size="11.5" font-weight="bold" fill="#0f172a">${p.parcelId}</text>
-                <text x="${p.x + 8}" y="${p.y + 36}" font-size="9.5" fill="#334155">${p.area} • ${p.taxPaid ? 'Tax OK' : 'Tax Due'}</text>
-            `;
-            g.style.cursor = "pointer";
-            g.onclick = () => runClientLookup(p.parcelId);
-            shapes.appendChild(g);
-        });
-    }
-
-    function renderAll(selectedId = "") {
-        document.getElementById("statTotalParcels").textContent = parcels.length;
-        document.getElementById("statPaidTax").textContent = parcels.filter(p => p.taxPaid).length;
-        document.getElementById("statUnpaidTax").textContent = parcels.filter(p => !p.taxPaid).length;
-        document.getElementById("statComplaints").textContent = complaints.length;
-
-        const tbody = document.getElementById("registryTableBody");
-        tbody.innerHTML = parcels.map(p => {
-            const taxBadge = p.taxPaid
-                ? `<span class="pill p-ok">Kaffalameera</span>`
-                : `<span class="pill p-bad">Hin Kaffalamne</span>`;
-
-            const actions = p.taxPaid
-                ? `<button type="button" class="btn-sms" onclick="sendTaxReminder('${p.parcelId}')">📱 Ergaa Ergi</button>`
-                : `<div class="action-btns">
-                     <button type="button" class="btn-green" onclick="markTaxPaid('${p.parcelId}')">✅ Kaffalameera Jechi</button>
-                     <button type="button" class="btn-sms" onclick="sendTaxReminder('${p.parcelId}')">⚠️ Yaadachiisa Gibiraa Ergi</button>
-                   </div>`;
-
-            return `
-                <tr>
-                    <td><strong>${p.parcelId}</strong><br><small style="color:#64748b;">${p.aanaa}</small></td>
-                    <td><strong>${p.owner}</strong><br><small style="color:#64748b;">${p.zone}</small></td>
-                    <td>${p.phone}</td>
-                    <td>${p.area}</td>
-                    <td><strong>${p.taxAmount}</strong></td>
-                    <td>${taxBadge}</td>
-                    <td>${actions}</td>
-                </tr>
-            `;
-        }).join("");
-
-        const cBody = document.getElementById("complaintsTableBody");
-        cBody.innerHTML = complaints.map(c => `
-            <tr>
-                <td><strong>${c.id}</strong></td>
-                <td>${c.name}</td>
-                <td>${c.parcelId}</td>
-                <td>${c.type}</td>
-                <td>${c.desc}</td>
-                <td><span class="pill p-warn">${c.state}</span></td>
-            </tr>
-        `).join("");
-
-        renderMap(selectedId);
-        renderSmsFeed();
-    }
-
-    function sendTelegramAlert(actionTitle, detail) {
-        if (BOT_TOKEN.includes("GARTI_BOT_TOKEN")) return;
-        const text = `🏛️ <b>MUNICIPAL LAND &amp; TAX SYSTEM</b>\n\n` +
-                     `📌 <b>Gocha:</b> ${actionTitle}\n` +
-                     `📝 <b>Ibsa:</b> ${detail}`;
-
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: "HTML" })
-        }).catch(() => {});
-    }
-</script>
-</body>
-</html>
+                <label
